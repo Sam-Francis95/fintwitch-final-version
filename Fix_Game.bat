@@ -6,18 +6,17 @@ echo ========================================
 echo 🛠️ REPAIRING GAME FILES
 echo ========================================
 echo.
-echo 1. Installing missing 'zustand' library...
-call npm install zustand --save
+echo 1. Clearing old cache...
+if exist "node_modules\.vite" rmdir /s /q "node_modules\.vite"
+if exist "package-lock.json" del "package-lock.json"
 
 echo.
-echo 2. Clearing Game Cache...
-if exist "node_modules\.vite" (
-    rmdir /s /q "node_modules\.vite"
-)
+echo 2. Installing ALL dependencies (React, Vite, Firebase)...
+call npm install
 
 echo.
 echo ========================================
-echo ✅ REPAIR COMPLETE!
+echo ✅ REPAIR AND UPDATE COMPLETE!
 echo ========================================
 echo.
 echo You can now close this window and run 'start_game.bat'.

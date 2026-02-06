@@ -151,7 +151,7 @@ export default function StockMarketGame() {
                 </div>
             </div>
 
-            <div className="flex-1 grid lg:grid-cols-4 gap-6 overflow-hidden min-h-0">
+            <div className="flex-1 grid lg:grid-cols-3 gap-6 overflow-hidden min-h-0">
 
                 {/* Left: Watchlist & Search */}
                 <div className="card-glass flex flex-col overflow-hidden lg:col-span-1 border-t-0 text-left">
@@ -201,48 +201,52 @@ export default function StockMarketGame() {
                 </div>
 
                 {/* Center: Pro Chart */}
-                <div className="flex flex-col gap-6 lg:col-span-3 overflow-hidden">
+                <div className="flex flex-col gap-6 lg:col-span-2 overflow-hidden">
 
                     <div className="card-glass p-1 flex-1 flex flex-col min-h-[400px] relative bg-[#0B0E14]">
                         {selectedStock ? (
                             <>
-                                {/* Chart Header */}
-                                <div className="absolute top-4 left-4 z-10">
-                                    <h3 className="text-3xl font-heading font-bold text-white mb-1">{selectedStock.symbol}</h3>
-                                    <h4 className="text-sm text-slate-400 mb-2">{selectedStock.name}</h4>
-                                    <div className="flex items-baseline gap-3">
-                                        <span className={`text-2xl font-mono font-bold ${isPositive ? 'text-brand-success' : 'text-brand-danger'}`}>
-                                            ₹{selectedStock.price.toFixed(2)}
-                                        </span>
-                                        <span className="text-xs text-slate-500">
-                                            Open: ₹{selectedStock.openPrice.toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="absolute top-4 right-4 z-10 flex gap-2 items-center">
-                                    <div className="text-right mr-4 hidden md:block">
-                                        <div className="text-xs text-slate-500 uppercase">Your Position</div>
-                                        <div className="text-xl font-bold text-white">{heldQuantity} Shares</div>
+                                {/* Header Container - Flex to prevent overlap */}
+                                <div className="flex flex-wrap justify-between items-start p-4 z-10 relative">
+                                    {/* Left: Stock Info */}
+                                    <div>
+                                        <h3 className="text-3xl font-heading font-bold text-white mb-1">{selectedStock.symbol}</h3>
+                                        <h4 className="text-sm text-slate-400 mb-2">{selectedStock.name}</h4>
+                                        <div className="flex items-baseline gap-3">
+                                            <span className={`text-2xl font-mono font-bold ${isPositive ? 'text-brand-success' : 'text-brand-danger'}`}>
+                                                ₹{selectedStock.price.toFixed(2)}
+                                            </span>
+                                            <span className="text-xs text-slate-500">
+                                                Open: ₹{selectedStock.openPrice.toFixed(2)}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <button
-                                        onClick={sellHolding}
-                                        disabled={heldQuantity === 0}
-                                        className={`font-bold py-2 px-6 rounded transition ${heldQuantity > 0 ? "bg-brand-danger hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]" : "bg-white/5 text-slate-500 cursor-not-allowed"}`}
-                                    >
-                                        SELL
-                                    </button>
-                                    <button
-                                        onClick={() => buyStock(selectedStock)}
-                                        className="bg-brand-success hover:bg-green-600 text-black font-bold py-2 px-6 rounded transition shadow-[0_0_15px_rgba(16,185,129,0.4)]"
-                                    >
-                                        BUY
-                                    </button>
+                                    {/* Right: Actions */}
+                                    <div className="flex gap-2 items-center mt-2 lg:mt-0">
+                                        <div className="text-right mr-4 hidden md:block">
+                                            <div className="text-xs text-slate-500 uppercase">Your Position</div>
+                                            <div className="text-xl font-bold text-white">{heldQuantity} Shares</div>
+                                        </div>
+
+                                        <button
+                                            onClick={sellHolding}
+                                            disabled={heldQuantity === 0}
+                                            className={`font-bold py-2 px-6 rounded transition ${heldQuantity > 0 ? "bg-brand-danger hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]" : "bg-white/5 text-slate-500 cursor-not-allowed"}`}
+                                        >
+                                            SELL
+                                        </button>
+                                        <button
+                                            onClick={() => buyStock(selectedStock)}
+                                            className="bg-brand-success hover:bg-green-600 text-black font-bold py-2 px-6 rounded transition shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                                        >
+                                            BUY
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* The Graph */}
-                                <div className="flex-1 w-full min-h-0 pt-28 pb-2 pr-2">
+                                <div className="flex-1 w-full min-h-0 pt-2 pb-2 pr-2">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <AreaChart data={selectedStock.history}>
                                             <defs>
