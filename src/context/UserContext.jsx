@@ -140,8 +140,13 @@ export function UserProvider({ children }) {
             if (!firebaseUser || isLoading || isFetching.current || isSigningUp.current) return;
             try {
                 const docRef = doc(db, "users", firebaseUser.uid);
-                await updateDoc(docRef, user).catch(async (err) => {
-                    if (err.code === 'not-found') await setDoc(docRef, user);
+
+                // Exclude gamification fields managed by useGameStore to prevent overwrites
+                // eslint-disable-next-line no-unused-vars
+                const { xp, level, streak, lastActiveDate, unlockedTools, completedLessons, ...userDataToSync } = user;
+
+                await updateDoc(docRef, userDataToSync).catch(async (err) => {
+                    if (err.code === 'not-found') await setDoc(docRef, user); // fallback to full set if new
                 });
             } catch (e) { /* sync failure is okay */ }
         };
