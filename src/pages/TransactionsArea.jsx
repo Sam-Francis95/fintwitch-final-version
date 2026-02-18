@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { UserContext } from "../context/UserContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Coins, TrendingUp, History, Star, Shield, Crown } from "lucide-react";
 
 // --- 3D Components ---
@@ -88,6 +88,8 @@ const Badge3D = ({ type, locked }) => {
 
 export default function TransactionsArea() {
     const { user } = useContext(UserContext);
+    const [filterType, setFilterType] = React.useState("All"); // "All", "Income", "Expense"
+    const [expandedCategories, setExpandedCategories] = React.useState(new Set());
 
     // --- Logic ---
     const STARTING_BALANCE = 1000;
@@ -120,6 +122,75 @@ export default function TransactionsArea() {
         progressPercent = 100;
     }
 
+    // --- Data Processing ---
+    const transactions = user.transactions || [];
+
+    // Group transactions by Category
+    const groupedTransactions = React.useMemo(() => {
+        const groups = {};
+        transactions.forEach(tx => {
+            // Extraction logic
+            let catName = "Other";
+            const match = tx.label && tx.label.match(/\(([^)]+)\)/);
+            if (match) {
+                catName = match[1];
+            } else if (tx.source === 'simulation') {
+                if (tx.label.includes("Rent")) catName = "Rent";
+                else if (tx.label.includes("Salary")) catName = "Salary";
+                else if (tx.label.includes("Groceries")) catName = "Groceries";
+                else if (tx.label.includes("Utilities")) catName = "Utilities";
+                else if (tx.label.includes("Subscription")) catName = "Subscription";
+                else if (tx.label.includes("Emergency")) catName = "Emergency";
+                else if (tx.label.includes("Interest")) catName = "Interest";
+                else if (tx.label.includes("Dividend")) catName = "Dividend";
+                else if (tx.label.includes("Bonus")) catName = "Bonus";
+                else catName = tx.label || "General";
+            } else {
+                catName = tx.label || "User Action";
+            }
+            // Cleanup
+            catName = catName.replace(" (Income)", "").replace(" (Expense)", "");
+
+            if (!groups[catName]) {
+                groups[catName] = {
+                    type: tx.amount >= 0 ? "Income" : "Expense",
+                    total: 0,
+                    events: []
+                };
+            }
+            groups[catName].total += tx.amount;
+            groups[catName].events.push(tx);
+        });
+
+        // Sort events within groups by date (newest first)
+        Object.values(groups).forEach(group => {
+            group.events.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+        });
+
+        return groups;
+    }, [transactions]);
+
+    const toggleCategory = (catName) => {
+        setExpandedCategories(prev => {
+            const next = new Set(prev);
+            if (next.has(catName)) {
+                next.delete(catName);
+            } else {
+                next.add(catName);
+            }
+            return next;
+        });
+    };
+
+    // Filter Logic: Filter Groups by Type (Income/Expense)
+    const displayedCategories = Object.entries(groupedTransactions)
+        .filter(([_, data]) => {
+            if (filterType === "All") return true;
+            return data.type === filterType;
+        })
+        .reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {});
+
+
     return (
         <div className="max-w-5xl mx-auto space-y-12 font-sans perspective-1000">
 
@@ -133,7 +204,6 @@ export default function TransactionsArea() {
 
             {/* 3D Dashboard Deck */}
             <div className="grid md:grid-cols-2 gap-8 items-center">
-
                 {/* Left: Balance Card (Tilt Effect) */}
                 <motion.div
                     initial={{ rotateX: 10, opacity: 0 }}
@@ -142,14 +212,9 @@ export default function TransactionsArea() {
                     className="relative group perspective-card"
                 >
                     <div className="absolute inset-0 bg-blue-600 blur-[80px] opacity-20 group-hover:opacity-30 transition-opacity rounded-full"></div>
-
                     <div className="relative bg-[#0f0f11]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl overflow-hidden transform transition-transform group-hover:scale-[1.02]">
-                        {/* Decorative Grid */}
                         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
-                        <div className="absolute top-0 right-0 p-8 opacity-10">
-                            <Coins size={120} />
-                        </div>
-
+                        <div className="absolute top-0 right-0 p-8 opacity-10"><Coins size={120} /></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-3 mb-2 text-blue-400 font-mono text-sm uppercase tracking-widest">
                                 <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
@@ -159,14 +224,13 @@ export default function TransactionsArea() {
                                 <Coin3D size="md" />
                                 {currentBalance.toLocaleString()}
                             </div>
-
                             <div className="flex items-center justify-between border-t border-white/10 pt-4">
                                 <div>
                                     <div className="text-slate-500 text-xs font-bold uppercase mb-1">Starting Balance</div>
                                     <div className="text-xl font-bold text-slate-300 font-mono">{STARTING_BALANCE}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-slate-500 text-xs font-bold uppercase mb-1">Total Logic Gain</div>
+                                    <div className="text-slate-500 text-xs font-bold uppercase mb-1">Total Net Gain</div>
                                     <div className={`text-xl font-bold font-mono ${currentBalance >= STARTING_BALANCE ? "text-green-400" : "text-red-400"}`}>
                                         {currentBalance >= STARTING_BALANCE ? "+" : ""}{currentBalance - STARTING_BALANCE}
                                     </div>
@@ -182,17 +246,13 @@ export default function TransactionsArea() {
                         <Trophy className="text-yellow-400" />
                         Rank Progression
                     </h3>
-
                     {/* Badge Row */}
                     <div className="flex justify-between items-end mb-8 relative z-10 px-2">
                         <Badge3D type="bronze" locked={currentBalance < BRONZE_REQ} />
                         <Badge3D type="silver" locked={currentBalance < SILVER_REQ} />
                         <Badge3D type="gold" locked={currentBalance < GOLD_REQ} />
-
-                        {/* Connecting Line (Behind) */}
                         <div className="absolute bottom-12 left-0 w-full h-2 bg-white/5 rounded-full -z-10 top-1/2 -translate-y-1/2"></div>
                     </div>
-
                     {/* Progress Bar Container */}
                     <div className="relative">
                         <div className="flex justify-between text-xs font-bold text-slate-500 mb-2 uppercase">
@@ -200,7 +260,6 @@ export default function TransactionsArea() {
                             <span>Next: {nextLabel} ({nextGoal})</span>
                         </div>
                         <div className="h-4 bg-black/50 rounded-full overflow-hidden border border-white/10 relative shadow-inner">
-                            {/* Liquid Gold Bar */}
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progressPercent}%` }}
@@ -217,67 +276,123 @@ export default function TransactionsArea() {
                 </div>
             </div>
 
-            {/* 3D Transaction List */}
+            {/* --- Filter & List Section --- */}
             <div>
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <History size={24} className="text-slate-400" />
-                    Ledger History
-                </h3>
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    <h3 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <History size={24} className="text-slate-400" />
+                        Transaction History
+                    </h3>
 
-                {(!user.transactions || user.transactions.length === 0) ? (
-                    <div className="text-center py-20 text-slate-500 bg-white/5 rounded-3xl border border-dashed border-white/10">
-                        <div className="mb-4 flex justify-center opacity-20">
-                            <Coins size={48} />
+                    {/* Filter Dropdown (Income / Expense) */}
+                    <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Filter:</span>
                         </div>
-                        No transactions yet. Play games to earn logic points!
+                        <select
+                            value={filterType}
+                            onChange={(e) => {
+                                setFilterType(e.target.value);
+                                setExpandedCategories(new Set()); // Collapse all when switching filter
+                            }}
+                            className="appearance-none bg-[#1a1a1c] border border-white/10 text-white pl-16 pr-8 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-white/5 transition-colors font-bold min-w-[200px]"
+                        >
+                            <option value="All">All Transactions</option>
+                            <option value="Income">Income Only</option>
+                            <option value="Expense">Expense Only</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                        </div>
                     </div>
-                ) : (
-                    <div className="space-y-4">
-                        {user.transactions
-                            ?.slice()
-                            .reverse()
-                            .map((tx, i) => (
-                                <motion.div
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.05 }}
-                                    key={tx.id}
-                                    className="group relative"
+                </div>
+
+                <div className="space-y-4">
+                    {Object.keys(displayedCategories).length === 0 && (
+                        <div className="text-center py-12 text-slate-500 border border-dashed border-white/10 rounded-3xl">
+                            No {filterType === 'All' ? '' : filterType} transactions found.
+                        </div>
+                    )}
+
+                    {Object.entries(displayedCategories).map(([cat, data]) => {
+                        const isExpanded = expandedCategories.has(cat);
+                        const isIncome = data.type === "Income";
+
+                        return (
+                            <div key={cat} className="bg-[#1a1a1c] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
+                                {/* Header (Clickable) */}
+                                <div
+                                    onClick={() => toggleCategory(cat)}
+                                    className="p-4 md:p-6 flex items-center justify-between cursor-pointer group bg-gradient-to-r from-transparent via-transparent to-white/0 hover:to-white/5 transition-all"
                                 >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/5 to-purple-600/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
-
-                                    <div className="relative bg-[#1a1a1c] border border-white/5 p-4 rounded-2xl flex items-center justify-between shadow-lg shadow-black/20 transform transition-all hover:translate-x-1 hover:border-white/10 hover:shadow-xl">
-
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${tx.amount >= 0
-                                                    ? "bg-gradient-to-br from-green-900/50 to-green-800/20 border border-green-500/30 text-green-400"
-                                                    : "bg-gradient-to-br from-red-900/50 to-red-800/20 border border-red-500/30 text-red-400"
-                                                }`}>
-                                                {tx.amount >= 0 ? <TrendingUp size={20} /> : <TrendingUp size={20} className="rotate-180" />}
-                                            </div>
-
-                                            <div>
-                                                <div className="font-bold text-slate-200 group-hover:text-white transition-colors text-lg">
-                                                    {tx.label || tx.source}
-                                                </div>
-                                                <div className="text-xs text-slate-500 font-mono">
-                                                    ID: {tx.id.toString().slice(-6)} • {new Date(tx.ts).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className={`text-xl font-black font-mono tracking-tight ${tx.amount >= 0 ? "text-green-400 drop-shadow-[0_0_8px_rgba(74,222,128,0.3)]" : "text-red-400"
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${isIncome
+                                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                                            : "bg-red-500/10 text-red-400 border border-red-500/20"
                                             }`}>
-                                            {tx.amount >= 0 ? "+" : ""}
-                                            {Math.abs(tx.amount).toFixed(0)}
-                                            <span className="text-xs ml-1 opacity-50">PTS</span>
+                                            {isIncome ? <TrendingUp size={20} /> : <TrendingUp size={20} className="rotate-180" />}
                                         </div>
-
+                                        <div>
+                                            <h4 className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">{cat}</h4>
+                                            {/* Show count only when active or expanded? Keep it simple. */}
+                                            <div className="text-xs text-slate-500 font-mono">
+                                                {data.events.length} item{data.events.length !== 1 && 's'}
+                                            </div>
+                                        </div>
                                     </div>
-                                </motion.div>
-                            ))}
-                    </div>
-                )}
+
+                                    <div className="flex items-center gap-6">
+                                        <div className={`text-xl font-black font-mono tracking-tight ${data.total >= 0 ? "text-green-400" : "text-red-400"}`}>
+                                            {data.total >= 0 ? "+" : ""}{data.total.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
+                                        </div>
+                                        <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180 bg-white/10 text-white" : ""}`}>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Collapsible Body */}
+                                <AnimatePresence>
+                                    {isExpanded && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="p-4 pt-0 border-t border-white/5 bg-black/20">
+                                                <div className="space-y-2 mt-4">
+                                                    {data.events.map((tx) => (
+                                                        <div key={tx.id} className="flex justify-between items-center p-3 rounded-xl hover:bg-white/5 transition-colors">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="text-xs text-slate-500 font-mono bg-white/5 px-2 py-1 rounded">
+                                                                    {new Date(tx.ts).toLocaleString()}
+                                                                </div>
+                                                                {/* Only show label if it's different or just show generic 'Credit/Debit' since category is known? Keeping label for now. */}
+                                                                <span className="text-sm font-medium text-slate-300">{tx.label}</span>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <div className={`font-bold font-mono ${tx.amount >= 0 ? "text-green-400" : "text-red-400"}`}>
+                                                                    {tx.amount >= 0 ? "+" : ""}{Math.abs(tx.amount).toFixed(2)}
+                                                                </div>
+                                                                {tx.balanceAfter !== undefined && (
+                                                                    <div className="text-[10px] text-slate-600 font-mono">
+                                                                        Bal: ${tx.balanceAfter.toLocaleString()}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
         </div>

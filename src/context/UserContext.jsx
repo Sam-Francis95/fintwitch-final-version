@@ -411,6 +411,38 @@ export function UserProvider({ children }) {
         push("Trading License Granted! +$500 Bonus", { style: "success" });
     };
 
+
+    // Financial Event Generator Polling
+    useEffect(() => {
+        let interval;
+        // Only run if in 'career' mode (or if user is logged in and we want it globally? Req said "Career Path")
+        // The user.mode is 'career' by default in INITIAL_USER_STATE.
+        if (user.mode === 'career') {
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch("http://localhost:5000/events");
+                    if (!res.ok) return;
+                    const events = await res.json();
+
+                    if (events && events.length > 0) {
+                        events.forEach(event => {
+                            const sign = event.category === "Income" ? 1 : -1;
+                            const finalAmount = event.amount * sign;
+
+                            transact(finalAmount, {
+                                source: "simulation",
+                                label: `${event.type} (${event.category})`
+                            });
+                        });
+                    }
+                } catch (e) {
+                    // Ignore connection errors (service might be stopped)
+                }
+            }, 5000); // Poll every 5 seconds
+        }
+        return () => clearInterval(interval);
+    }, [user.mode]); // Re-run if mode switches
+
     // Stable Context Value
     const contextValue = useMemo(() => ({
         user, setUser,
