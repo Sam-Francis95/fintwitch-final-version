@@ -97,7 +97,7 @@ export default function StockQuiz({ onComplete }) {
     const SCENARIO_STEPS = [
         {
             title: "Step 1: The Setup",
-            scenario: "You have $5,000 to invest. You've found a tech company, 'Cyberdyne', that you believe will grow. What is your very first logical step?",
+            scenario: "You have ₹5,000 to invest. You've found a tech company, 'Cyberdyne', that you believe will grow. What is your very first logical step?",
             options: [
                 "Call the company CEO to buy shares personally",
                 "Open a Brokerage Account (Demat Account)",
@@ -108,7 +108,7 @@ export default function StockQuiz({ onComplete }) {
         },
         {
             title: "Step 2: Funding",
-            scenario: "Your account is open. Now, how do you get your $5,000 ready to use?",
+            scenario: "Your account is open. Now, how do you get your ₹5,000 ready to use?",
             options: [
                 "Mail a check to the stock exchange",
                 "Transfer funds from your Bank to your Brokerage Wallet",
@@ -119,10 +119,10 @@ export default function StockQuiz({ onComplete }) {
         },
         {
             title: "Step 3: Execution",
-            scenario: "You have funds. You search for 'Cyberdyne' (Ticker: CYBR). You want to buy it NOW at the current price ($150). What order type do you use?",
+            scenario: "You have funds. You search for 'Cyberdyne' (Ticker: CYBR). You want to buy it NOW at the current price (₹150). What order type do you use?",
             options: [
                 "Market Order (Buy immediately at best available price)",
-                "Limit Order (Buy only if price drops to $140)",
+                "Limit Order (Buy only if price drops to ₹140)",
                 "Stop Loss Order"
             ],
             a: 0,
@@ -130,7 +130,7 @@ export default function StockQuiz({ onComplete }) {
         },
         {
             title: "Step 4: Monitoring",
-            scenario: "You own 30 shares! Two days later, the price drops to $145. What is the best long-term reaction?",
+            scenario: "You own 30 shares! Two days later, the price drops to ₹145. What is the best long-term reaction?",
             options: [
                 "Panic and sell everything immediately",
                 "Check the company news/fundamentals, and hold if the thesis is still valid",
@@ -192,7 +192,7 @@ export default function StockQuiz({ onComplete }) {
                     <h2 className="text-2xl font-bold text-white mb-2">Trading License Required</h2>
                     <p className="text-slate-400 mb-8 leading-relaxed">
                         To access the FinTwitch Terminal, you must verify your knowledge.
-                        Complete the training module to earn your license and a <span className="text-emerald-400 font-bold">$500 Funding Bonus</span>.
+                        Complete the training module to earn your license and a <span className="text-emerald-400 font-bold">₹500 Funding Bonus</span>.
                     </p>
 
                     <button
@@ -224,7 +224,7 @@ export default function StockQuiz({ onComplete }) {
                     <p className="text-slate-300 mb-8">
                         You have demonstrated the necessary knowledge to trade safely.
                         <br />
-                        <span className="text-emerald-400 font-bold">+$500 Bonus Funds Added</span>
+                        <span className="text-emerald-400 font-bold">+₹500 Bonus Funds Added</span>
                     </p>
 
                     <button

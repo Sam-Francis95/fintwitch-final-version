@@ -18,7 +18,7 @@ const Coin3D = ({ size = "md" }) => {
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-700 shadow-lg shadow-yellow-500/30 transform transition-transform group-hover:rotate-y-12 border-2 border-yellow-200">
                 {/* Inner Face */}
                 <div className="absolute inset-1 rounded-full bg-gradient-to-tr from-yellow-400 to-yellow-200 flex items-center justify-center border border-yellow-600/50">
-                    <span className="font-bold text-yellow-800 text-xs">$</span>
+                    <span className="font-bold text-yellow-800 text-xs">₹</span>
                 </div>
             </div>
             {/* Shine */}
@@ -96,9 +96,9 @@ export default function TransactionsArea() {
     const currentBalance = user?.balance || 0;
 
     // Progress Logic
-    const BRONZE_REQ = 3000;
-    const SILVER_REQ = 4000;
-    const GOLD_REQ = 5000;
+    const BRONZE_REQ = 50000;
+    const SILVER_REQ = 75000;
+    const GOLD_REQ = 100000;
 
     let nextGoal = BRONZE_REQ;
     let nextLabel = "Bronze";
@@ -334,7 +334,7 @@ export default function TransactionsArea() {
 
                             <div className="flex items-center gap-6">
                                 <div className="text-xl font-black font-mono tracking-tight text-green-400">
-                                    +${incomeTotal.toFixed(2)}
+                                    +₹{incomeTotal.toFixed(2)}
                                 </div>
                                 <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${expandedMain.has('income') ? "rotate-180 bg-white/10 text-white" : ""}`}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
@@ -376,7 +376,7 @@ export default function TransactionsArea() {
                                                             </div>
                                                             <div className="flex items-center gap-4">
                                                                 <span className="font-bold font-mono text-green-400">
-                                                                    +${catData.total.toFixed(2)}
+                                                                    +₹{catData.total.toFixed(2)}
                                                                 </span>
                                                                 <div className={`transition-transform duration-200 text-slate-400 ${isSubExpanded ? "rotate-180" : ""}`}>
                                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
@@ -409,7 +409,7 @@ export default function TransactionsArea() {
                                                                                     </div>
                                                                                     {tx.balanceAfter !== undefined && (
                                                                                         <div className="text-[10px] text-slate-600 font-mono">
-                                                                                            Bal: ${tx.balanceAfter.toLocaleString()}
+                                                                                            Bal: ₹{tx.balanceAfter.toLocaleString()}
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
@@ -450,7 +450,7 @@ export default function TransactionsArea() {
 
                             <div className="flex items-center gap-6">
                                 <div className="text-xl font-black font-mono tracking-tight text-red-400">
-                                    -${expenseTotal.toFixed(2)}
+                                    -₹{expenseTotal.toFixed(2)}
                                 </div>
                                 <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${expandedMain.has('expense') ? "rotate-180 bg-white/10 text-white" : ""}`}>
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
@@ -492,7 +492,7 @@ export default function TransactionsArea() {
                                                             </div>
                                                             <div className="flex items-center gap-4">
                                                                 <span className="font-bold font-mono text-red-400">
-                                                                    -${catData.total.toFixed(2)}
+                                                                    -₹{catData.total.toFixed(2)}
                                                                 </span>
                                                                 <div className={`transition-transform duration-200 text-slate-400 ${isSubExpanded ? "rotate-180" : ""}`}>
                                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
@@ -525,7 +525,7 @@ export default function TransactionsArea() {
                                                                                     </div>
                                                                                     {tx.balanceAfter !== undefined && (
                                                                                         <div className="text-[10px] text-slate-600 font-mono">
-                                                                                            Bal: ${tx.balanceAfter.toLocaleString()}
+                                                                                            Bal: ₹{tx.balanceAfter.toLocaleString()}
                                                                                         </div>
                                                                                     )}
                                                                                 </div>

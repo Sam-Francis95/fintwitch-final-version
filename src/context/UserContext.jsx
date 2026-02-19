@@ -11,6 +11,8 @@ import { db, auth } from "../firebase";
 import { useLocalState } from "../hooks/useLocalState";
 import { useToast } from "./ToastContext";
 import { todayStr, yesterdayStr, round2, fmt } from "../utils/format";
+import { sendToBackend } from "../utils/pathwayBackend";
+import { startEventListener, stopEventListener } from "../utils/eventListener";
 
 export const UserContext = createContext(null);
 
@@ -52,6 +54,7 @@ export function UserProvider({ children }) {
     const [firebaseUser, setFirebaseUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const { push } = useToast();
+    const eventListenerActive = useRef(false);
 
     // Use a Ref to keep track of the latest user state without triggering effect re-runs
     const userRef = useRef(user);
@@ -222,11 +225,48 @@ export function UserProvider({ children }) {
     const transact = (amount, { source = "system", label = null } = {}) => {
         setUser((u) => {
             const newBalance = round2(Math.max(0, u.balance + amount));
-            const tx = { id: Date.now(), ts: new Date().toISOString(), amount: round2(amount), balanceAfter: newBalance, source, label };
+            
+            // Auto-categorize by adding Income/Expense prefix if not already present
+            let categorizedLabel = label || source;
+            if (categorizedLabel && !categorizedLabel.startsWith("Income") && !categorizedLabel.startsWith("Expense")) {
+                const prefix = amount >= 0 ? "Income" : "Expense";
+                categorizedLabel = `${prefix} (${categorizedLabel})`;
+            }
+            
+            const tx = { id: Date.now(), ts: new Date().toISOString(), amount: round2(amount), balanceAfter: newBalance, source, label: categorizedLabel };
+            
+            // Send transaction to Pathway analytics backend
+            sendToBackend(tx);
+            
             return { ...u, balance: newBalance, transactions: [...(u.transactions || []), tx].slice(-200) };
         });
         push(`${amount > 0 ? "+" : ""}${fmt(amount)} (${label || source})`, { style: amount >= 0 ? "success" : "danger" });
     };
+    
+    // Start event listener when user is logged in
+    useEffect(() => {
+        if (user?.username && !eventListenerActive.current) {
+            eventListenerActive.current = true;
+            
+            const handleEvent = (event) => {
+                const amount = event.type === 'Income' ? event.amount : -event.amount;
+                transact(amount, { 
+                    source: 'financial_event', 
+                    label: event.category 
+                });
+            };
+            
+            startEventListener(user.balance, handleEvent);
+            console.log('🎧 Financial event listener started');
+        }
+        
+        return () => {
+            if (eventListenerActive.current) {
+                stopEventListener();
+                eventListenerActive.current = false;
+            }
+        };
+    }, [user?.username]); // Only restart if username changes (login/logout)
 
     const markArticleRead = (id, reward = 10) => {
         setUser((u) => {
