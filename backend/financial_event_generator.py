@@ -5,7 +5,7 @@ import time
 import uuid
 from datetime import datetime
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -15,10 +15,35 @@ CORS(app)
 event_queue = []
 queue_lock = threading.Lock()
 
-def generate_event():
-    """Generates a random financial event with balanced economy logic."""
-    # 80% chance of Expense, 20% chance of Income to prevent infinite wealth
-    if random.random() < 0.2:
+# Balance thresholds
+CRITICAL_BALANCE_THRESHOLD = 50  # Below this: 100% Income only
+LOW_BALANCE_THRESHOLD = 500
+RECOVERY_BALANCE_THRESHOLD = 1500
+
+def generate_event(user_balance=None):
+    """Generates a random financial event with adaptive economy logic."""
+    # Adaptive probability based on user's balance
+    if user_balance is not None and user_balance <= CRITICAL_BALANCE_THRESHOLD:
+        # CRITICAL: 100% Income, 0% Expense (complete recovery mode)
+        income_probability = 1.0
+        expense_multiplier = 0.0
+        print(f"🚨 CRITICAL MODE ({user_balance}) - INCOME ONLY until recovery!")
+    elif user_balance is not None and user_balance < LOW_BALANCE_THRESHOLD:
+        # Low balance: 80% Income, 20% Expense (help user recover)
+        income_probability = 0.80
+        expense_multiplier = 0.4  # Reduce expense amounts significantly
+        print(f"⚠️  LOW BALANCE MODE ({user_balance}) - Boosting income...")
+    elif user_balance is not None and user_balance < RECOVERY_BALANCE_THRESHOLD:
+        # Recovery mode: 50% Income, 50% Expense (balanced)
+        income_probability = 0.50
+        expense_multiplier = 0.7
+        print(f"📈 RECOVERY MODE ({user_balance}) - Balanced generation...")
+    else:
+        # Normal mode: 20% Income, 80% Expense (challenge player)
+        income_probability = 0.20
+        expense_multiplier = 1.0
+    
+    if random.random() < income_probability:
         event_type = "Income"
         category = random.choice(["Salary", "Bonus", "Interest", "Dividend"])
         # Income amounts
@@ -31,17 +56,17 @@ def generate_event():
     else:
         event_type = "Expense"
         category = random.choice(["Rent", "Groceries", "Utilities", "Subscription", "Emergency", "Entertainment", "Transport"])
-        # Expense amounts (Increased to challenge player)
+        # Expense amounts (reduced when balance is low)
         if category == "Rent":
-            amount = random.uniform(1500, 2500)
+            amount = random.uniform(1500, 2500) * expense_multiplier
         elif category == "Emergency":
-            amount = random.uniform(500, 3000)
+            amount = random.uniform(500, 3000) * expense_multiplier
         elif category == "Groceries":
-            amount = random.uniform(100, 400)
+            amount = random.uniform(100, 400) * expense_multiplier
         elif category == "Utilities":
-            amount = random.uniform(100, 300)
+            amount = random.uniform(100, 300) * expense_multiplier
         else:
-            amount = random.uniform(20, 150)
+            amount = random.uniform(20, 150) * expense_multiplier
 
     return {
         "id": str(uuid.uuid4()),
@@ -65,14 +90,15 @@ def print_event(event):
     print(f"{color}[{event['type'].upper()}] {event['category']}: {sign}${event['amount']:.2f}{colors['RESET']}")
 
 def background_generator():
-    """Background thread that generates events."""
+    """Background thread that generates events with default (normal) economy."""
     print("Starting Background Event Generator...")
     while True:
         try:
             delay = random.uniform(5, 10)
             time.sleep(delay)
             
-            event = generate_event()
+            # Generate event with no balance (uses normal mode)
+            event = generate_event(None)
             
             with queue_lock:
                 event_queue.append(event)
@@ -88,11 +114,21 @@ def background_generator():
 
 @app.route('/events', methods=['GET'])
 def get_events():
-    """Returns and clears the event queue."""
+    """Returns and clears the event queue. Accepts optional balance parameter for adaptive generation."""
     global event_queue
+    
+    # Get user balance from query parameter
+    user_balance = request.args.get('balance', type=float)
+    
     with queue_lock:
         events = list(event_queue)
         event_queue.clear()
+    
+    # If no events in queue and balance is provided, generate one adaptively
+    if len(events) == 0 and user_balance is not None:
+        adaptive_event = generate_event(user_balance)
+        events = [adaptive_event]
+        print_event(adaptive_event)
     
     return jsonify(events)
 

@@ -420,14 +420,21 @@ export function UserProvider({ children }) {
         if (user.mode === 'career') {
             interval = setInterval(async () => {
                 try {
-                    const res = await fetch("http://localhost:5000/events");
+                    // Send current balance to backend for adaptive event generation
+                    const res = await fetch(`http://localhost:5000/events?balance=${user.balance}`);
                     if (!res.ok) return;
                     const events = await res.json();
 
                     if (events && events.length > 0) {
                         events.forEach(event => {
-                            const sign = event.category === "Income" ? 1 : -1;
+                            const sign = event.type === "Income" ? 1 : -1;
                             const finalAmount = event.amount * sign;
+
+                            // Prevent expenses when balance is at or near zero
+                            if (event.type === "Expense" && userRef.current.balance <= 50) {
+                                console.log(`🛑 Blocked expense (${event.category}) - Balance too low: ${userRef.current.balance}`);
+                                return; // Skip this expense
+                            }
 
                             transact(finalAmount, {
                                 source: "simulation",
@@ -441,7 +448,7 @@ export function UserProvider({ children }) {
             }, 5000); // Poll every 5 seconds
         }
         return () => clearInterval(interval);
-    }, [user.mode]); // Re-run if mode switches
+    }, [user.mode, user.balance]); // Re-run if mode or balance changes
 
     // Stable Context Value
     const contextValue = useMemo(() => ({

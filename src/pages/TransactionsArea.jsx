@@ -88,8 +88,8 @@ const Badge3D = ({ type, locked }) => {
 
 export default function TransactionsArea() {
     const { user } = useContext(UserContext);
-    const [filterType, setFilterType] = React.useState("All"); // "All", "Income", "Expense"
-    const [expandedCategories, setExpandedCategories] = React.useState(new Set());
+    const [expandedMain, setExpandedMain] = React.useState(new Set()); // Tracks Income/Expense expansion
+    const [expandedSubcategories, setExpandedSubcategories] = React.useState(new Set()); // Tracks subcategory expansion
 
     // --- Logic ---
     const STARTING_BALANCE = 1000;
@@ -125,70 +125,99 @@ export default function TransactionsArea() {
     // --- Data Processing ---
     const transactions = user.transactions || [];
 
-    // Group transactions by Category
+    // Group transactions by Type (Income/Expense) then by Subcategory
     const groupedTransactions = React.useMemo(() => {
-        const groups = {};
-        transactions.forEach(tx => {
-            // Extraction logic
-            let catName = "Other";
-            const match = tx.label && tx.label.match(/\(([^)]+)\)/);
-            if (match) {
-                catName = match[1];
-            } else if (tx.source === 'simulation') {
-                if (tx.label.includes("Rent")) catName = "Rent";
-                else if (tx.label.includes("Salary")) catName = "Salary";
-                else if (tx.label.includes("Groceries")) catName = "Groceries";
-                else if (tx.label.includes("Utilities")) catName = "Utilities";
-                else if (tx.label.includes("Subscription")) catName = "Subscription";
-                else if (tx.label.includes("Emergency")) catName = "Emergency";
-                else if (tx.label.includes("Interest")) catName = "Interest";
-                else if (tx.label.includes("Dividend")) catName = "Dividend";
-                else if (tx.label.includes("Bonus")) catName = "Bonus";
-                else catName = tx.label || "General";
-            } else {
-                catName = tx.label || "User Action";
-            }
-            // Cleanup
-            catName = catName.replace(" (Income)", "").replace(" (Expense)", "");
+        const income = {};
+        const expense = {};
 
-            if (!groups[catName]) {
-                groups[catName] = {
-                    type: tx.amount >= 0 ? "Income" : "Expense",
+        transactions.forEach(tx => {
+            // Extract category name and type from label - format is "Income (Salary)" or "Expense (Rent)"
+            let catName = "Other";
+            let isIncome = false;
+            
+            if (tx.label) {
+                // First, determine if it's Income or Expense from the label itself
+                if (tx.label.startsWith("Income")) {
+                    isIncome = true;
+                    // Extract category from parentheses: "Income (Salary)" -> "Salary"
+                    const match = tx.label.match(/\(([^)]+)\)/);
+                    if (match) {
+                        catName = match[1].trim();
+                    } else {
+                        catName = tx.label.replace(/^Income\s*/i, '').trim() || "General";
+                    }
+                } else if (tx.label.startsWith("Expense")) {
+                    isIncome = false;
+                    // Extract category from parentheses: "Expense (Rent)" -> "Rent"
+                    const match = tx.label.match(/\(([^)]+)\)/);
+                    if (match) {
+                        catName = match[1].trim();
+                    } else {
+                        catName = tx.label.replace(/^Expense\s*/i, '').trim() || "General";
+                    }
+                } else {
+                    // Fallback: use amount to determine type
+                    isIncome = tx.amount >= 0;
+                    catName = tx.label.trim() || "General";
+                }
+            } else {
+                // No label - use amount sign to determine
+                isIncome = tx.amount >= 0;
+                catName = "General";
+            }
+
+            // Categorize based on what we determined from the LABEL, not the amount
+            const targetGroup = isIncome ? income : expense;
+
+            if (!targetGroup[catName]) {
+                targetGroup[catName] = {
                     total: 0,
-                    events: []
+                    events: [],
+                    isIncome: isIncome  // Store the type for proper display
                 };
             }
-            groups[catName].total += tx.amount;
-            groups[catName].events.push(tx);
+            // For totals, use absolute value and let display logic handle signs
+            targetGroup[catName].total += Math.abs(tx.amount);
+            targetGroup[catName].events.push(tx);
         });
 
-        // Sort events within groups by date (newest first)
-        Object.values(groups).forEach(group => {
-            group.events.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+        // Sort events within each subcategory by date (newest first)
+        [income, expense].forEach(group => {
+            Object.values(group).forEach(subcat => {
+                subcat.events.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+            });
         });
 
-        return groups;
+        return { income, expense };
     }, [transactions]);
 
-    const toggleCategory = (catName) => {
-        setExpandedCategories(prev => {
+    // Calculate totals for Income and Expense (using absolute values)
+    const incomeTotal = Object.values(groupedTransactions.income).reduce((sum, cat) => sum + cat.total, 0);
+    const expenseTotal = Object.values(groupedTransactions.expense).reduce((sum, cat) => sum + cat.total, 0);
+
+    const toggleMain = (type) => {
+        setExpandedMain(prev => {
             const next = new Set(prev);
-            if (next.has(catName)) {
-                next.delete(catName);
+            if (next.has(type)) {
+                next.delete(type);
             } else {
-                next.add(catName);
+                next.add(type);
             }
             return next;
         });
     };
 
-    // Filter Logic: Filter Groups by Type (Income/Expense)
-    const displayedCategories = Object.entries(groupedTransactions)
-        .filter(([_, data]) => {
-            if (filterType === "All") return true;
-            return data.type === filterType;
-        })
-        .reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {});
+    const toggleSubcategory = (key) => {
+        setExpandedSubcategories(prev => {
+            const next = new Set(prev);
+            if (next.has(key)) {
+                next.delete(key);
+            } else {
+                next.add(key);
+            }
+            return next;
+        });
+    };
 
 
     return (
@@ -276,122 +305,245 @@ export default function TransactionsArea() {
                 </div>
             </div>
 
-            {/* --- Filter & List Section --- */}
+            {/* --- Transaction History Section --- */}
             <div>
-                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h3 className="text-2xl font-bold text-white flex items-center gap-3">
-                        <History size={24} className="text-slate-400" />
-                        Transaction History
-                    </h3>
-
-                    {/* Filter Dropdown (Income / Expense) */}
-                    <div className="relative group">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Filter:</span>
-                        </div>
-                        <select
-                            value={filterType}
-                            onChange={(e) => {
-                                setFilterType(e.target.value);
-                                setExpandedCategories(new Set()); // Collapse all when switching filter
-                            }}
-                            className="appearance-none bg-[#1a1a1c] border border-white/10 text-white pl-16 pr-8 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer hover:bg-white/5 transition-colors font-bold min-w-[200px]"
-                        >
-                            <option value="All">All Transactions</option>
-                            <option value="Income">Income Only</option>
-                            <option value="Expense">Expense Only</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                        </div>
-                    </div>
-                </div>
+                <h3 className="text-2xl font-bold text-white flex items-center gap-3 mb-6">
+                    <History size={24} className="text-slate-400" />
+                    Transaction History
+                </h3>
 
                 <div className="space-y-4">
-                    {Object.keys(displayedCategories).length === 0 && (
-                        <div className="text-center py-12 text-slate-500 border border-dashed border-white/10 rounded-3xl">
-                            No {filterType === 'All' ? '' : filterType} transactions found.
-                        </div>
-                    )}
-
-                    {Object.entries(displayedCategories).map(([cat, data]) => {
-                        const isExpanded = expandedCategories.has(cat);
-                        const isIncome = data.type === "Income";
-
-                        return (
-                            <div key={cat} className="bg-[#1a1a1c] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
-                                {/* Header (Clickable) */}
-                                <div
-                                    onClick={() => toggleCategory(cat)}
-                                    className="p-4 md:p-6 flex items-center justify-between cursor-pointer group bg-gradient-to-r from-transparent via-transparent to-white/0 hover:to-white/5 transition-all"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xl shadow-inner ${isIncome
-                                            ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                                            : "bg-red-500/10 text-red-400 border border-red-500/20"
-                                            }`}>
-                                            {isIncome ? <TrendingUp size={20} /> : <TrendingUp size={20} className="rotate-180" />}
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">{cat}</h4>
-                                            {/* Show count only when active or expanded? Keep it simple. */}
-                                            <div className="text-xs text-slate-500 font-mono">
-                                                {data.events.length} item{data.events.length !== 1 && 's'}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-6">
-                                        <div className={`text-xl font-black font-mono tracking-tight ${data.total >= 0 ? "text-green-400" : "text-red-400"}`}>
-                                            {data.total >= 0 ? "+" : ""}{data.total.toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
-                                        </div>
-                                        <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${isExpanded ? "rotate-180 bg-white/10 text-white" : ""}`}>
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                                        </div>
+                    {/* INCOME Section */}
+                    <div className="bg-[#1a1a1c] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
+                        {/* Main Header - Income */}
+                        <div
+                            onClick={() => toggleMain('income')}
+                            className="p-4 md:p-6 flex items-center justify-between cursor-pointer group bg-gradient-to-r from-transparent via-transparent to-green-500/5 hover:to-green-500/10 transition-all"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xl shadow-inner bg-green-500/10 text-green-400 border border-green-500/20">
+                                    <TrendingUp size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-white text-lg group-hover:text-green-400 transition-colors">Income</h4>
+                                    <div className="text-xs text-slate-500 font-mono">
+                                        {Object.keys(groupedTransactions.income).length} categor{Object.keys(groupedTransactions.income).length !== 1 ? 'ies' : 'y'}
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Collapsible Body */}
-                                <AnimatePresence>
-                                    {isExpanded && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                                            className="overflow-hidden"
-                                        >
-                                            <div className="p-4 pt-0 border-t border-white/5 bg-black/20">
-                                                <div className="space-y-2 mt-4">
-                                                    {data.events.map((tx) => (
-                                                        <div key={tx.id} className="flex justify-between items-center p-3 rounded-xl hover:bg-white/5 transition-colors">
+                            <div className="flex items-center gap-6">
+                                <div className="text-xl font-black font-mono tracking-tight text-green-400">
+                                    +${incomeTotal.toFixed(2)}
+                                </div>
+                                <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${expandedMain.has('income') ? "rotate-180 bg-white/10 text-white" : ""}`}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Income Subcategories */}
+                        <AnimatePresence>
+                            {expandedMain.has('income') && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="p-4 border-t border-white/5 bg-black/20 space-y-2">
+                                        {Object.keys(groupedTransactions.income).length === 0 ? (
+                                            <div className="text-center py-6 text-slate-500">No income transactions yet</div>
+                                        ) : (
+                                            Object.entries(groupedTransactions.income).map(([catName, catData]) => {
+                                                const subcatKey = `income-${catName}`;
+                                                const isSubExpanded = expandedSubcategories.has(subcatKey);
+
+                                                return (
+                                                    <div key={subcatKey} className="bg-[#0f0f11] border border-white/5 rounded-xl overflow-hidden">
+                                                        {/* Subcategory Header */}
+                                                        <div
+                                                            onClick={() => toggleSubcategory(subcatKey)}
+                                                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors"
+                                                        >
                                                             <div className="flex items-center gap-3">
-                                                                <div className="text-xs text-slate-500 font-mono bg-white/5 px-2 py-1 rounded">
-                                                                    {new Date(tx.ts).toLocaleString()}
-                                                                </div>
-                                                                {/* Only show label if it's different or just show generic 'Credit/Debit' since category is known? Keeping label for now. */}
-                                                                <span className="text-sm font-medium text-slate-300">{tx.label}</span>
+                                                                <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                                                                <span className="font-semibold text-white">{catName}</span>
+                                                                <span className="text-xs text-slate-500 font-mono">
+                                                                    {catData.events.length} transaction{catData.events.length !== 1 ? 's' : ''}
+                                                                </span>
                                                             </div>
-                                                            <div className="text-right">
-                                                                <div className={`font-bold font-mono ${tx.amount >= 0 ? "text-green-400" : "text-red-400"}`}>
-                                                                    {tx.amount >= 0 ? "+" : ""}{Math.abs(tx.amount).toFixed(2)}
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="font-bold font-mono text-green-400">
+                                                                    +${catData.total.toFixed(2)}
+                                                                </span>
+                                                                <div className={`transition-transform duration-200 text-slate-400 ${isSubExpanded ? "rotate-180" : ""}`}>
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
                                                                 </div>
-                                                                {tx.balanceAfter !== undefined && (
-                                                                    <div className="text-[10px] text-slate-600 font-mono">
-                                                                        Bal: ${tx.balanceAfter.toLocaleString()}
-                                                                    </div>
-                                                                )}
                                                             </div>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+
+                                                        {/* Individual Transactions */}
+                                                        <AnimatePresence>
+                                                            {isSubExpanded && (
+                                                                <motion.div
+                                                                    initial={{ height: 0, opacity: 0 }}
+                                                                    animate={{ height: "auto", opacity: 1 }}
+                                                                    exit={{ height: 0, opacity: 0 }}
+                                                                    transition={{ duration: 0.2 }}
+                                                                    className="overflow-hidden"
+                                                                >
+                                                                    <div className="px-4 pb-4 pt-2 border-t border-white/5 bg-black/30 space-y-2">
+                                                                        {catData.events.map((tx) => (
+                                                                            <div key={tx.id} className="flex justify-between items-center p-3 rounded-lg hover:bg-white/5 transition-colors">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <div className="text-xs text-slate-500 font-mono bg-white/5 px-2 py-1 rounded">
+                                                                                        {new Date(tx.ts).toLocaleString()}
+                                                                                    </div>
+                                                                                    <span className="text-sm font-medium text-slate-300">{tx.label}</span>
+                                                                                </div>
+                                                                                <div className="text-right">
+                                                                                    <div className="font-bold font-mono text-green-400">
+                                                                                        +{Math.abs(tx.amount).toFixed(2)}
+                                                                                    </div>
+                                                                                    {tx.balanceAfter !== undefined && (
+                                                                                        <div className="text-[10px] text-slate-600 font-mono">
+                                                                                            Bal: ${tx.balanceAfter.toLocaleString()}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* EXPENSE Section */}
+                    <div className="bg-[#1a1a1c] border border-white/5 rounded-2xl overflow-hidden transition-all hover:border-white/10">
+                        {/* Main Header - Expense */}
+                        <div
+                            onClick={() => toggleMain('expense')}
+                            className="p-4 md:p-6 flex items-center justify-between cursor-pointer group bg-gradient-to-r from-transparent via-transparent to-red-500/5 hover:to-red-500/10 transition-all"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xl shadow-inner bg-red-500/10 text-red-400 border border-red-500/20">
+                                    <TrendingUp size={20} className="rotate-180" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-white text-lg group-hover:text-red-400 transition-colors">Expense</h4>
+                                    <div className="text-xs text-slate-500 font-mono">
+                                        {Object.keys(groupedTransactions.expense).length} categor{Object.keys(groupedTransactions.expense).length !== 1 ? 'ies' : 'y'}
+                                    </div>
+                                </div>
                             </div>
-                        );
-                    })}
+
+                            <div className="flex items-center gap-6">
+                                <div className="text-xl font-black font-mono tracking-tight text-red-400">
+                                    -${expenseTotal.toFixed(2)}
+                                </div>
+                                <div className={`p-2 rounded-full bg-white/5 text-slate-400 transition-transform duration-300 ${expandedMain.has('expense') ? "rotate-180 bg-white/10 text-white" : ""}`}>
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Expense Subcategories */}
+                        <AnimatePresence>
+                            {expandedMain.has('expense') && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="p-4 border-t border-white/5 bg-black/20 space-y-2">
+                                        {Object.keys(groupedTransactions.expense).length === 0 ? (
+                                            <div className="text-center py-6 text-slate-500">No expense transactions yet</div>
+                                        ) : (
+                                            Object.entries(groupedTransactions.expense).map(([catName, catData]) => {
+                                                const subcatKey = `expense-${catName}`;
+                                                const isSubExpanded = expandedSubcategories.has(subcatKey);
+
+                                                return (
+                                                    <div key={subcatKey} className="bg-[#0f0f11] border border-white/5 rounded-xl overflow-hidden">
+                                                        {/* Subcategory Header */}
+                                                        <div
+                                                            onClick={() => toggleSubcategory(subcatKey)}
+                                                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-2 h-2 rounded-full bg-red-400"></div>
+                                                                <span className="font-semibold text-white">{catName}</span>
+                                                                <span className="text-xs text-slate-500 font-mono">
+                                                                    {catData.events.length} transaction{catData.events.length !== 1 ? 's' : ''}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center gap-4">
+                                                                <span className="font-bold font-mono text-red-400">
+                                                                    -${catData.total.toFixed(2)}
+                                                                </span>
+                                                                <div className={`transition-transform duration-200 text-slate-400 ${isSubExpanded ? "rotate-180" : ""}`}>
+                                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Individual Transactions */}
+                                                        <AnimatePresence>
+                                                            {isSubExpanded && (
+                                                                <motion.div
+                                                                    initial={{ height: 0, opacity: 0 }}
+                                                                    animate={{ height: "auto", opacity: 1 }}
+                                                                    exit={{ height: 0, opacity: 0 }}
+                                                                    transition={{ duration: 0.2 }}
+                                                                    className="overflow-hidden"
+                                                                >
+                                                                    <div className="px-4 pb-4 pt-2 border-t border-white/5 bg-black/30 space-y-2">
+                                                                        {catData.events.map((tx) => (
+                                                                            <div key={tx.id} className="flex justify-between items-center p-3 rounded-lg hover:bg-white/5 transition-colors">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <div className="text-xs text-slate-500 font-mono bg-white/5 px-2 py-1 rounded">
+                                                                                        {new Date(tx.ts).toLocaleString()}
+                                                                                    </div>
+                                                                                    <span className="text-sm font-medium text-slate-300">{tx.label}</span>
+                                                                                </div>
+                                                                                <div className="text-right">
+                                                                                    <div className="font-bold font-mono text-red-400">
+                                                                                        -{Math.abs(tx.amount).toFixed(2)}
+                                                                                    </div>
+                                                                                    {tx.balanceAfter !== undefined && (
+                                                                                        <div className="text-[10px] text-slate-600 font-mono">
+                                                                                            Bal: ${tx.balanceAfter.toLocaleString()}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </div>
             </div>
 
