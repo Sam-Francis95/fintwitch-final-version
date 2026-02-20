@@ -14,6 +14,72 @@ import { todayStr, yesterdayStr, round2, fmt } from "../utils/format";
 import { sendToBackend } from "../utils/pathwayBackend";
 import { startEventListener, stopEventListener } from "../utils/eventListener";
 
+// Budget system integration
+const BUDGET_BACKEND_URL = 'http://localhost:5001';
+let budgetSystemAvailable = false;
+
+// Check if budget system is available
+const checkBudgetSystem = async () => {
+    try {
+        const response = await fetch(`${BUDGET_BACKEND_URL}/budget/status`, { timeout: 1000 });
+        budgetSystemAvailable = response.ok;
+        if (budgetSystemAvailable) {
+            console.log('✅ Budget system connected');
+        }
+    } catch (error) {
+        budgetSystemAvailable = false;
+    }
+    return budgetSystemAvailable;
+};
+
+// Send income to budget system
+const sendIncomeToBudgetSystem = async (userId, amount, category) => {
+    if (!budgetSystemAvailable || !userId) return;
+    
+    try {
+        // Auto-allocate income using balanced preset (can be customized by user later)
+        const allocations = {
+            living_expenses: Math.round(amount * 0.50),
+            emergency_fund: Math.round(amount * 0.20),
+            investments: Math.round(amount * 0.15),
+            savings: Math.round(amount * 0.15)
+        };
+        
+        await fetch(`${BUDGET_BACKEND_URL}/budget/allocate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                income_amount: amount,
+                allocations: allocations,
+                description: `Income from ${category}`
+            })
+        });
+    } catch (error) {
+        console.log('Budget system unavailable:', error.message);
+    }
+};
+
+// Send expense to budget system
+const sendExpenseToBudgetSystem = async (userId, amount, category) => {
+    if (!budgetSystemAvailable || !userId) return;
+    
+    try {
+        await fetch(`${BUDGET_BACKEND_URL}/budget/expense`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                amount: Math.abs(amount),
+                category: category,
+                description: `Expense: ${category}`
+            })
+        });
+    } catch (error) {
+        console.log('Budget system unavailable:', error.message);
+    }
+};
+
 export const UserContext = createContext(null);
 
 export function useUser() {
@@ -46,7 +112,8 @@ const INITIAL_USER_STATE = {
         careerLevel: false,
         reviewPortfolio: false
     },
-    tradingLicense: false // New state for Training Quiz
+    tradingLicense: false, // New state for Training Quiz
+    expensesBlocked: false // Flag to track expense blocking state
 };
 
 export function UserProvider({ children }) {
@@ -54,8 +121,10 @@ export function UserProvider({ children }) {
     const [firebaseUser, setFirebaseUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const { push } = useToast();
-    const eventListenerActive = useRef(false);
-
+    const eventListenerActive = useRef(false);    
+    // Balance thresholds for expense blocking
+    const EXPENSE_BLOCK_THRESHOLD = 100;  // Block expenses below this
+    const RECOVERY_THRESHOLD = 800;       // Resume expenses after reaching this
     // Use a Ref to keep track of the latest user state without triggering effect re-runs
     const userRef = useRef(user);
     useEffect(() => {
@@ -87,6 +156,19 @@ export function UserProvider({ children }) {
             if (snap.exists()) {
                 const data = snap.data();
                 setUser(prev => ({ ...prev, ...data }));
+                
+                // Initialize budget system for user
+                if (data.username) {
+                    checkBudgetSystem().then(available => {
+                        if (available) {
+                            fetch(`${BUDGET_BACKEND_URL}/budget/init`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ user_id: data.username })
+                            }).catch(err => console.log('Budget init skipped:', err.message));
+                        }
+                    });
+                }
             } else {
                 // New user flow
                 const fallbackName = email?.split('@')[0] || "Trader";
@@ -237,6 +319,14 @@ export function UserProvider({ children }) {
             
             // Send transaction to Pathway analytics backend
             sendToBackend(tx);
+            
+            // Send to budget system
+            const category = label || source;
+            if (amount >= 0) {
+                sendIncomeToBudgetSystem(u.username, amount, category);
+            } else {
+                sendExpenseToBudgetSystem(u.username, Math.abs(amount), category);
+            }
             
             return { ...u, balance: newBalance, transactions: [...(u.transactions || []), tx].slice(-200) };
         });
@@ -461,7 +551,8 @@ export function UserProvider({ children }) {
             interval = setInterval(async () => {
                 try {
                     // Send current balance to backend for adaptive event generation
-                    const res = await fetch(`http://localhost:5000/events?balance=${user.balance}`);
+                    // Use userRef to always get the latest balance
+                    const res = await fetch(`http://localhost:5000/events?balance=${userRef.current.balance}`);
                     if (!res.ok) return;
                     const events = await res.json();
 
@@ -469,11 +560,33 @@ export function UserProvider({ children }) {
                         events.forEach(event => {
                             const sign = event.type === "Income" ? 1 : -1;
                             const finalAmount = event.amount * sign;
+                            const currentBalance = userRef.current.balance;
 
-                            // Prevent expenses when balance is at or near zero
-                            if (event.type === "Expense" && userRef.current.balance <= 50) {
-                                console.log(`🛑 Blocked expense (${event.category}) - Balance too low: ${userRef.current.balance}`);
-                                return; // Skip this expense
+                            // Enhanced expense blocking with recovery threshold
+                            if (event.type === "Expense") {
+                                // If expenses are blocked, only unblock after recovery
+                                if (userRef.current.expensesBlocked) {
+                                    if (currentBalance >= RECOVERY_THRESHOLD) {
+                                        // Balance recovered - resume expenses
+                                        setUser(prev => ({ ...prev, expensesBlocked: false }));
+                                        console.log(`✅ Expenses resumed - Balance recovered to ₹${currentBalance.toFixed(2)}`);
+                                    } else {
+                                        console.log(`🛑 Expense blocked (${event.category}) - Recovering... (₹${currentBalance.toFixed(2)} / ₹${RECOVERY_THRESHOLD})`);
+                                        return; // Skip this expense
+                                    }
+                                } else if (currentBalance <= EXPENSE_BLOCK_THRESHOLD) {
+                                    // Balance too low - block expenses
+                                    setUser(prev => ({ ...prev, expensesBlocked: true }));
+                                    console.log(`🚨 Expenses blocked - Balance too low: ₹${currentBalance.toFixed(2)} (Need ₹${RECOVERY_THRESHOLD} to resume)`);
+                                    push(`⚠️ Expenses blocked! Recover to ₹${RECOVERY_THRESHOLD} to resume`, { style: "warning" });
+                                    return; // Skip this expense
+                                }
+                            } else if (event.type === "Income" && userRef.current.expensesBlocked) {
+                                // Show recovery progress on income
+                                const remaining = RECOVERY_THRESHOLD - (currentBalance + event.amount);
+                                if (remaining > 0) {
+                                    console.log(`💰 Recovery progress: ₹${remaining.toFixed(2)} more needed to resume expenses`);
+                                }
                             }
 
                             transact(finalAmount, {

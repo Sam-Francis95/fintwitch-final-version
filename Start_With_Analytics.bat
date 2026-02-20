@@ -13,17 +13,22 @@ start "Pathway Backend - Port 8000" cmd /k "cd /d "C:\Users\lenovo\Desktop\fintw
 timeout /t 3 >nul
 
 :: 2. Start Event Generator Backend (Python)
-echo [2/3] Launching Financial Event Generator (Port 5000)...
+echo [2/4] Launching Financial Event Generator (Port 5000)...
 start "Event Generator - Port 5000" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2\backend" && python financial_event_generator.py"
-timeout /t 3 >nul
+timeout /t 2 >nul
 
-:: 3. Start Frontend Client (React + Vite)
-echo [3/3] Launching FinTwitch City Frontend...
+:: 3. Start Budget Backend (Python)
+echo [3/4] Launching Budget System Backend (Port 5001)...
+start "Budget Backend - Port 5001" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2\backend" && python budget_system.py"
+timeout /t 2 >nul
+
+:: 4. Start Frontend Client (React + Vite)
+echo [4/4] Launching FinTwitch City Frontend...
 start "FinTwitch City Frontend" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2" && npm run dev"
 
-:: 4. Wait and open browser
+:: 5. Wait and open browser
 echo.
-echo [4/4] Waiting for services to start...
+echo [5/5] Waiting for services to start...
 timeout /t 8 >nul
 echo.
 echo Opening browser...
@@ -35,6 +40,7 @@ echo    ✅  COMPLETE SYSTEM ONLINE
 echo.
 echo    🎮 Game: http://localhost:3000
 echo    🎲 Event Generator: http://localhost:5000
+echo    💰 Budget System: http://localhost:5001
 echo    📊 Analytics Backend: http://localhost:8000
 echo    📈 View Transactions: http://localhost:8000/transactions
 echo    📚 API Docs: http://localhost:8000/docs

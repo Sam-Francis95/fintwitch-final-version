@@ -15,19 +15,22 @@ CORS(app)
 event_queue = []
 queue_lock = threading.Lock()
 
-# Balance thresholds
-CRITICAL_BALANCE_THRESHOLD = 50  # Below this: 100% Income only
-LOW_BALANCE_THRESHOLD = 500
-RECOVERY_BALANCE_THRESHOLD = 1500
+# Balance thresholds for adaptive economy
+CRITICAL_BALANCE_THRESHOLD = 0    # At or below this: Block all expenses
+EXPENSE_BLOCK_THRESHOLD = 100     # Below this: No expenses generated
+RECOVERY_THRESHOLD = 800          # Must reach this to resume normal expenses
+LOW_BALANCE_THRESHOLD = 500       # Boost income generation
+RECOVERY_BALANCE_THRESHOLD = 1500 # Return to normal mode
 
 def generate_event(user_balance=None):
     """Generates a random financial event with adaptive economy logic."""
     # Adaptive probability based on user's balance
-    if user_balance is not None and user_balance <= CRITICAL_BALANCE_THRESHOLD:
+    if user_balance is not None and user_balance <= EXPENSE_BLOCK_THRESHOLD:
         # CRITICAL: 100% Income, 0% Expense (complete recovery mode)
+        # Expenses only resume after balance reaches RECOVERY_THRESHOLD
         income_probability = 1.0
         expense_multiplier = 0.0
-        print(f"🚨 CRITICAL MODE ({user_balance}) - INCOME ONLY until recovery!")
+        print(f"🚨 RECOVERY MODE (Balance: ₹{user_balance:.2f}) - INCOME ONLY until ₹{RECOVERY_THRESHOLD}!")
     elif user_balance is not None and user_balance < LOW_BALANCE_THRESHOLD:
         # Low balance: 80% Income, 20% Expense (help user recover)
         income_probability = 0.80
@@ -114,32 +117,33 @@ def background_generator():
 
 @app.route('/events', methods=['GET'])
 def get_events():
-    """Returns and clears the event queue. Accepts optional balance parameter for adaptive generation."""
-    global event_queue
-    
+    """Generates events adaptively based on user balance (no background queue)."""
     # Get user balance from query parameter
     user_balance = request.args.get('balance', type=float)
     
-    with queue_lock:
-        events = list(event_queue)
-        event_queue.clear()
-    
-    # If no events in queue and balance is provided, generate one adaptively
-    if len(events) == 0 and user_balance is not None:
+    # Always generate event based on current balance (adaptive mode)
+    if user_balance is not None:
         adaptive_event = generate_event(user_balance)
-        events = [adaptive_event]
         print_event(adaptive_event)
+        return jsonify([adaptive_event])
     
-    return jsonify(events)
+    # Fallback: generate normal event if no balance provided
+    normal_event = generate_event(None)
+    return jsonify([normal_event])
 
 @app.route('/status', methods=['GET'])
 def status():
     return jsonify({"status": "running", "queue_size": len(event_queue)})
 
 if __name__ == "__main__":
-    # Start generator thread
-    generator_thread = threading.Thread(target=background_generator, daemon=True)
-    generator_thread.start()
+    # Note: Background generator DISABLED for fully adaptive event generation
+    # Events now generated on-demand based on real-time balance
+    
+    print("========================================")
+    print("Financial Event Generator - ADAPTIVE MODE")
+    print("Generating events based on user balance")
+    print("Port: 5000")
+    print("========================================\n")
     
     try:
         # Run Flask server
