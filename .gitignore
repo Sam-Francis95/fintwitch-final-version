@@ -1,8 +1,23 @@
-# Dependencies
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Node.js Dependencies
 node_modules/
 
 # Build output
-dist/
 dist-ssr/
 
 # Environment variables
@@ -19,9 +34,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor / OS files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
 Thumbs.db
