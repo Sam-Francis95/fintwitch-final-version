@@ -1,51 +1,64 @@
 @echo off
-title FinTwitch Complete System (fin_final2)
+title FinTwitch Pathway Intelligence System v2.0
 color 0b
 
 echo ================================================================
-echo       🚀 Starting FinTwitch City + Pathway Analytics
+echo    🌊 FinTwitch Pathway Financial Intelligence Engine v2.0
 echo ================================================================
 echo.
+echo    Starting comprehensive real-time analytics system...
+echo    • Streaming analytics
+echo    • Time-windowed metrics  
+echo    • Financial intelligence
+echo    • LLM-powered insights
+echo.
 
-:: 1. Start Pathway + FastAPI Backend (Python)
-echo [1/3] Launching Pathway Analytics Backend (Port 8000)...
-start "Pathway Backend - Port 8000" cmd /k "cd /d "C:\Users\lenovo\Desktop\fintwitch python pathway" && .venv\Scripts\activate && python main.py"
-timeout /t 3 >nul
+:: 1. Start Pathway Intelligence Engine v2 (Advanced Analytics)
+echo [1/4] Launching Pathway Intelligence Engine (Port 8000)...
+start "Pathway Intelligence v2.0" cmd /k "cd /d "%~dp0backend" && python pathway_streaming_v2.py"
+timeout /t 4 >nul
 
 :: 2. Start Event Generator Backend (Python)
 echo [2/4] Launching Financial Event Generator (Port 5000)...
-start "Event Generator - Port 5000" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2\backend" && python financial_event_generator.py"
+start "Event Generator - Port 5000" cmd /k "cd /d "%~dp0backend" && python financial_event_generator.py"
 timeout /t 2 >nul
 
 :: 3. Start Budget Backend (Python)
 echo [3/4] Launching Budget System Backend (Port 5001)...
-start "Budget Backend - Port 5001" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2\backend" && python budget_system.py"
+start "Budget Backend - Port 5001" cmd /k "cd /d "%~dp0backend" && python budget_system.py"
 timeout /t 2 >nul
 
 :: 4. Start Frontend Client (React + Vite)
-echo [4/4] Launching FinTwitch City Frontend...
-start "FinTwitch City Frontend" cmd /k "cd /d "C:\Users\lenovo\Desktop\fin_final2" && npm run dev"
+echo [4/4] Launching FinTwitch Frontend...
+start "FinTwitch Frontend" cmd /k "cd /d "%~dp0" && npm run dev"
 
 :: 5. Wait and open browser
 echo.
-echo [5/5] Waiting for services to start...
-timeout /t 8 >nul
+echo Waiting for all services to initialize...
+timeout /t 10 >nul
 echo.
 echo Opening browser...
-start http://localhost:3000
+start http://localhost:3000/pathway
 
 echo.
 echo ================================================================
-echo    ✅  COMPLETE SYSTEM ONLINE
+echo    ✅  PATHWAY INTELLIGENCE SYSTEM ONLINE
 echo.
-echo    🎮 Game: http://localhost:3000
+echo    🎮 Main App: http://localhost:3000
+echo    🧠 Intelligence Dashboard: http://localhost:3000/pathway
 echo    🎲 Event Generator: http://localhost:5000
 echo    💰 Budget System: http://localhost:5001
-echo    📊 Analytics Backend: http://localhost:8000
-echo    📈 View Transactions: http://localhost:8000/transactions
+echo    🌊 Pathway Engine: http://localhost:8000
 echo    📚 API Docs: http://localhost:8000/docs
 echo.
-echo    Keep all windows open while playing!
+echo    📊 Features Active:
+echo       ✓ Real-time streaming analytics
+echo       ✓ Time-windowed metrics (1-60 min)
+echo       ✓ Category aggregations
+echo       ✓ Financial intelligence & alerts
+echo       ✓ LLM-powered natural language insights
+echo.
+echo    Keep all terminal windows open!
 echo ================================================================
 echo.
 pause

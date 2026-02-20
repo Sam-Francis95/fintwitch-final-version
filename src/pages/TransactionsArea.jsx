@@ -96,9 +96,9 @@ export default function TransactionsArea() {
     const currentBalance = user?.balance || 0;
 
     // Progress Logic
-    const BRONZE_REQ = 50000;
-    const SILVER_REQ = 75000;
-    const GOLD_REQ = 100000;
+    const BRONZE_REQ = 100000;
+    const SILVER_REQ = 200000;
+    const GOLD_REQ = 350000;
 
     let nextGoal = BRONZE_REQ;
     let nextLabel = "Bronze";

@@ -12,7 +12,8 @@ import {
     TrendingUp,
     Sparkles,
     Rocket,
-    Wallet
+    Wallet,
+    Activity
 } from "lucide-react";
 
 import useGameStore from "../store/useGameStore";
@@ -39,6 +40,7 @@ export default function LeftNav() {
         { label: "Habit Core", to: "/habit", icon: Flame, modes: ['career', 'financial_tools'] },
         { label: "Treasury", to: "/transactions", icon: CreditCard, modes: ['career', 'financial_tools'] },
         { label: "Budget Vault", to: "/budget", icon: Wallet, modes: ['career', 'financial_tools'] },
+        { label: "Pathway Analytics", to: "/pathway", icon: Activity, modes: ['career', 'financial_tools'] },
     ];
 
     const links = allLinks.filter(link => !link.modes || link.modes.includes(user?.mode || 'career'));

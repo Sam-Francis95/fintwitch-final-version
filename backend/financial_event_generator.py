@@ -4,12 +4,16 @@ import threading
 import time
 import uuid
 from datetime import datetime
+import requests
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+# Pathway Streaming Engine endpoint
+PATHWAY_INGEST_URL = "http://localhost:8000/ingest"
 
 # Global Event Queue
 event_queue = []
@@ -79,6 +83,29 @@ def generate_event(user_balance=None):
         "timestamp": datetime.now().isoformat()
     }
 
+def forward_to_pathway(event):
+    """Forward event to Pathway streaming engine"""
+    try:
+        # Convert event format to match Pathway schema
+        pathway_event = {
+            "type": event["type"].lower(),  # "Income" -> "income"
+            "amount": event["amount"],
+            "category": event["category"],
+            "timestamp": event["timestamp"],
+            "description": f"{event['type']} - {event['category']}"
+        }
+        
+        response = requests.post(PATHWAY_INGEST_URL, json=pathway_event, timeout=1)
+        if response.status_code == 200:
+            print(f"  ✓ Forwarded to Pathway")
+        else:
+            print(f"  ⚠ Pathway ingestion failed: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        # Fail silently - Pathway might not be running
+        print(f"  ⚠ Pathway unavailable: {str(e)[:50]}")
+    except Exception as e:
+        print(f"  ⚠ Error forwarding to Pathway: {str(e)[:50]}")
+
 def print_event(event):
     """Pretty prints the event details."""
     colors = {
@@ -125,10 +152,12 @@ def get_events():
     if user_balance is not None:
         adaptive_event = generate_event(user_balance)
         print_event(adaptive_event)
+        forward_to_pathway(adaptive_event)  # Forward to Pathway
         return jsonify([adaptive_event])
     
     # Fallback: generate normal event if no balance provided
     normal_event = generate_event(None)
+    forward_to_pathway(normal_event)  # Forward to Pathway
     return jsonify([normal_event])
 
 @app.route('/status', methods=['GET'])

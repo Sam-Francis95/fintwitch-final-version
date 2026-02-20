@@ -21,6 +21,7 @@ import ArticlesArea from "./pages/ArticlesArea";
 import HabitTracker from "./pages/HabitTracker";
 import TransactionsArea from "./pages/TransactionsArea";
 import BudgetArea from "./pages/BudgetArea";
+import PathwayDashboard from "./pages/PathwayDashboard";
 import Login from "./pages/Login";
 import ModeSelection from "./pages/ModeSelection";
 
@@ -96,6 +97,7 @@ export default function App() {
               <Route path="habit" element={<PageWrapper><HabitTracker /></PageWrapper>} />
               <Route path="transactions" element={<PageWrapper><TransactionsArea /></PageWrapper>} />
               <Route path="budget" element={<PageWrapper><BudgetArea /></PageWrapper>} />
+              <Route path="pathway" element={<PageWrapper><PathwayDashboard /></PageWrapper>} />
             </Route>
           </Routes>
         </AnimatePresence>

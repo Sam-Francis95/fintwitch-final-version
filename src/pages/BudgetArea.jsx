@@ -13,7 +13,7 @@ import {
     History, 
     Plus,
     RefreshCw,
-    DollarSign,
+    IndianRupee,
     ArrowRight
 } from 'lucide-react';
 

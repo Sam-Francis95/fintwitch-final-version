@@ -1,2 +1,9 @@
 flask
 flask-cors
+requests
+# Note: pathway on PyPI is a stub. System uses pathway_mock.py for development.
+# For production, see PATHWAY_INSTALLATION.md
+pathway
+fastapi
+uvicorn[standard]
+pydantic
