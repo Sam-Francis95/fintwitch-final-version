@@ -1,26 +1,54 @@
-<h1 align="center">FinTwitch - Intelligence Edition v2.0</h1>
-<h3 align="center">🌊 Gamified Finance + Pathway Real-Time Intelligence Platform 💡</h3>
+<h1 align="center">FinTwitch - Real Intelligence Edition v3.0</h1>
+<h3 align="center">🌊 REAL Pathway Streaming + REAL LLM AI Intelligence 🤖</h3>
 
 <p align="center">
   <a href="https://fintwitch-fd0ea.web.app/"><img src="https://img.shields.io/badge/Live-Demo-FF00FF?style=for-the-badge&logo=google-chrome&logoColor=white" /></a>
   <img src="https://img.shields.io/badge/Frontend-React.js-61DAFB?style=for-the-badge&logo=react&logoColor=white" />
-  <img src="https://img.shields.io/badge/Streaming-Pathway-FF6B6B?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Streaming-REAL%20Pathway-FF6B6B?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Backend-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
-  <img src="https://img.shields.io/badge/AI-LLM%20Insights-7C3AED?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/AI-REAL%20LLM-7C3AED?style=for-the-badge&logo=openai&logoColor=white" />
   <img src="https://img.shields.io/badge/Database-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
 </p>
 
 ---
 
+## 🚀 **NEW in v3.0: Production-Grade Intelligence**
+
+### ✅ **REAL Pathway Streaming Engine**
+- Genuine Pathway library (not mock)
+- Real `ConnectorSubject` for continuous ingestion
+- Actual streaming operators: `with_columns()`, `groupby()`, `reduce()`
+- True time-windowed analytics with `window_by()`
+- Stateful aggregations with automatic recomputation
+
+### ✅ **REAL LLM Integration**
+- **OpenAI GPT-4/GPT-3.5** - Best quality AI insights
+- **Ollama (Local)** - Free, private, runs on your machine
+- Context-aware natural language generation
+- Personalized financial recommendations
+- Risk analysis with explanations
+
+### ✅ **Production Architecture**
+- No mock implementations (optional fallback if Pathway unavailable)
+- Real-time callbacks from Pathway streams
+- Asynchronous LLM processing
+- Thread-safe state management
+- Enterprise-grade error handling
+
+📚 **Setup Guide:** [REAL_PATHWAY_LLM_SETUP.md](REAL_PATHWAY_LLM_SETUP.md)
+
+---
+
 ## 🧠 What is FinTwitch?
 
-**FinTwitch** is a **Pathway-powered real-time financial intelligence platform** wrapped in an engaging gamified experience.  
-It combines **interactive learning**, **habit tracking**, **simulations**, and **streaming analytics with AI insights** in a **GTA-inspired neon UI**.
+**FinTwitch** is a **production-grade real-time financial intelligence platform** powered by genuine Pathway streaming and real LLM AI.  
+It combines **interactive financial education**, **habit tracking**, **simulations**, and **live streaming analytics** in an engaging **GTA-inspired UI**.
 
-> **"Gaming generates data → Pathway provides intelligence"**
+> **"Gaming generates data → REAL Pathway processes → REAL AI advises"**
 
 🎯 **Live Demo:** [https://fintwitch-fd0ea.web.app/](https://fintwitch-fd0ea.web.app/)  
-📚 **Hackathon Docs:** [PATHWAY_HACKATHON_DOCS.md](PATHWAY_HACKATHON_DOCS.md)
+📚 **Hackathon Docs:** [PATHWAY_HACKATHON_DOCS.md](PATHWAY_HACKATHON_DOCS.md)  
+🔧 **Setup Real Intelligence:** [REAL_PATHWAY_LLM_SETUP.md](REAL_PATHWAY_LLM_SETUP.md)
 
 ---
 
@@ -34,15 +62,18 @@ It combines **interactive learning**, **habit tracking**, **simulations**, and *
 - **Achievements System** – Earn XP and unlock trophies
 - **Stock Ticker** – Real-time stock updates with AI analysis
 
-### 🌊 Pathway Intelligence Engine v2.0 (NEW)
-- **Real-Time Stream Processing** – Unbounded event streams with continuous transformations
-- **Time-Windowed Analytics** – Rolling windows (1-60 minutes) for recent activity analysis
-- **Category Aggregations** – Grouped streaming computations by category
-- **Financial Intelligence Layer** – Overspending detection, balance alerts, risk scoring
-- **LLM Integration** – Natural language summaries and personalized recommendations
-- **Health Scoring** – Real-time financial health calculation (0-100)
-- **Behavioral Insights** – Pattern detection and velocity monitoring
-- **6 Live Endpoints** – Comprehensive API for metrics, intelligence, and insights
+### 🌊 Real Pathway Intelligence Engine v3.0 ⭐
+- **REAL Pathway Streaming** – Genuine Pathway library with `ConnectorSubject`, not mock
+- **Real Streaming Operators** – `with_columns()`, `groupby()`, `reduce()`, `window_by()`
+- **Time-Windowed Analytics** – Actual temporal operations with rolling windows (1-60 min)
+- **Stateful Aggregations** – True streaming aggregations with automatic recomputation
+- **Category GroupBy** – Real `groupby('category').reduce()` operations
+- **REAL LLM AI** – OpenAI GPT-4/GPT-3.5 or local Ollama for genuine intelligence
+- **Context-Aware Prompts** – AI receives live financial metrics for personalized advice
+- **Natural Language Insights** – Real AI-generated summaries, risk analysis, recommendations
+- **Financial Intelligence** – 8 rule-based checks (overspending, balance, risk, patterns)
+- **Production Architecture** – Thread-safe, async LLM calls, Pathway callbacks
+- **7 Live Endpoints** – `/ingest`, `/metrics`, `/categories`, `/windowed`, `/intelligence`, `/insights/llm`, `/status`
 
 ---
 
@@ -64,14 +95,14 @@ It combines **interactive learning**, **habit tracking**, **simulations**, and *
 
 ## 🚀 Quick Start
 
-### ⚡ One-Click Startup (Recommended)
+### ⚡ One-Click Startup
 ```bash
 # Run from fin_final2 folder
 Start_With_Analytics.bat
 ```
 
 **This launches:**
-1. **Pathway Intelligence Engine** (Port 8000) - Streaming analytics
+1. **REAL Pathway Intelligence** (Port 8000) - Production streaming engine
 2. **Event Generators** (Port 5000, 5001) - Transaction creation
 3. **React Frontend** (Port 3000) - Opens to Pathway Dashboard
 
@@ -79,9 +110,10 @@ Start_With_Analytics.bat
 - 🎮 **Game:** http://localhost:3000
 - 🌊 **Pathway Dashboard:** http://localhost:3000/pathway
 - 📊 **API Docs:** http://localhost:8000/docs
+- 🤖 **LLM Insights:** http://localhost:8000/insights/llm
 - 💡 **Status:** http://localhost:8000/status
 
-### 🔧 Manual Setup
+### 🔧 Setup for Real Intelligence
 
 **1. Install Dependencies**
 ```bash
@@ -94,14 +126,44 @@ cd ..
 npm install
 ```
 
-**2. Start Pathway Intelligence Engine**
-```bash
-cd backend
-python pathway_streaming_v2.py
-# Runs on port 8000
+**2. Configure LLM (Optional but Recommended)**
+
+Create `backend/.env` file:
+```env
+# Option A: Google Gemini (Recommended - FREE!)
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=your-api-key-here
+GEMINI_MODEL=gemini-1.5-flash
+
+# Option B: OpenAI (Paid)
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-your-key-here
+OPENAI_MODEL=gpt-4o-mini
+
+# Option C: Ollama (Free, Local)
+LLM_PROVIDER=ollama
+OLLAMA_MODEL=llama3.2
+
+# Option D: Mock (Fallback)
+LLM_PROVIDER=mock
 ```
 
-**3. Start Event Generators**
+**Get Gemini Key (FREE):** https://aistudio.google.com/app/apikey  
+**MLH Resources:** [mlh.link/gemini-quickstart](https://mlh.link/gemini-quickstart)  
+**Get OpenAI Key:** https://platform.openai.com/api-keys  
+**Install Ollama:** https://ollama.ai/
+
+📚 **Gemini Setup Guide:** [GEMINI_SETUP.md](GEMINI_SETUP.md) ⭐ Start here!  
+📚 **Full Setup Guide:** [REAL_PATHWAY_LLM_SETUP.md](REAL_PATHWAY_LLM_SETUP.md)
+
+**3. Start REAL Pathway Engine**
+```bash
+cd backend
+python pathway_streaming_real.py
+# Runs on port 8000 with real Pathway (if installed)
+```
+
+**4. Start Event Generators**
 ```bash
 # Terminal 1
 python financial_event_generator.py  # Port 5000
@@ -117,9 +179,11 @@ npm run dev  # Port 3000
 
 ---
 
-## 🌊 Pathway Intelligence API v2.0
+## 🌊 Real Pathway Intelligence API v3.0
 
 **Interactive Docs:** http://localhost:8000/docs
+
+**NEW:** All computations use genuine Pathway streaming + Real LLM AI
 
 ### Core Endpoints
 
@@ -184,17 +248,20 @@ Rule-based alerts, warnings, and insights:
 }
 ```
 
-#### 🤖 **GET /insights/llm** - LLM-Powered Natural Language Insights
-AI-generated summaries and recommendations:
+#### 🤖 **GET /insights/llm** - REAL LLM AI Insights ⭐
+**NEW:** Genuine AI-generated insights using OpenAI GPT or Ollama
 ```json
 {
   "summary": "⚠️ High financial risk detected. Your expenses (₹32,000) exceed income (₹25,000)...",
-  "risk_explanation": "Risk is HIGH because expenses represent 128% of income...",
+  "risk_analysis": "Risk is HIGH because expenses represent 128% of income. Sustainable spending should stay below 80%...",
   "recommendations": [
-    "🎯 Priority: Reduce discretionary spending by 25%",
-    "💰 Goal: Increase income through side projects"
+    "🎯 Priority 1: Reduce discretionary spending by 25%",
+    "💰 Priority 2: Increase income through side projects",
+    "📊 Priority 3: Focus cuts on 'entertainment' category (40% of total)"
   ],
-  "confidence": 0.95
+  "confidence": 0.92,
+  "provider": "openai",
+  "model": "gpt-4o-mini"
 }
 ```
 

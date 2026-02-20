@@ -61,9 +61,9 @@ const WindowedMetrics = () => {
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-blue-500/30">
-      {/* Header with Time Window Selector */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
+      {/* Header */}
+      <div className="mb-4">
+        <div className="flex items-center space-x-3 mb-3">
           <Clock className="w-6 h-6 text-blue-400" />
           <h3 className="text-xl font-bold text-blue-400">Recent Activity</h3>
           <span className="px-2 py-1 bg-blue-500/20 rounded text-xs text-blue-300">
@@ -73,15 +73,15 @@ const WindowedMetrics = () => {
         
         {/* Window Size Selector */}
         <div className="flex items-center space-x-2">
-          <span className="text-xs text-gray-400">Time Window:</span>
+          <span className="text-sm text-gray-400">Window:</span>
           <div className="flex space-x-1">
             {windowOptions.map(option => (
               <button
                 key={option.value}
                 onClick={() => setWindowSize(option.value)}
-                className={`px-2 py-1 rounded text-xs transition-colors ${
+                className={`px-3 py-1 rounded text-sm font-medium transition-all ${
                   windowSize === option.value
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
                 }`}
               >

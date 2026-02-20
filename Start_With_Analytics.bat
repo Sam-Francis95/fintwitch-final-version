@@ -1,21 +1,23 @@
 @echo off
-title FinTwitch Pathway Intelligence System v2.0
+title FinTwitch REAL Pathway Intelligence v3.0
 color 0b
 
 echo ================================================================
-echo    🌊 FinTwitch Pathway Financial Intelligence Engine v2.0
+echo    🌊 FinTwitch REAL Pathway Intelligence Engine v3.0
 echo ================================================================
 echo.
-echo    Starting comprehensive real-time analytics system...
-echo    • Streaming analytics
-echo    • Time-windowed metrics  
-echo    • Financial intelligence
-echo    • LLM-powered insights
+echo    Starting PRODUCTION-GRADE real-time intelligence...
+echo    ✅ REAL Pathway streaming (not mock)
+echo    ✅ REAL LLM AI insights (OpenAI/Ollama)
+echo    ✅ Time-windowed analytics
+echo    ✅ Financial intelligence rules
+echo.
+echo    📝 Note: Configure .env file for LLM API keys
 echo.
 
-:: 1. Start Pathway Intelligence Engine v2 (Advanced Analytics)
-echo [1/4] Launching Pathway Intelligence Engine (Port 8000)...
-start "Pathway Intelligence v2.0" cmd /k "cd /d "%~dp0backend" && python pathway_streaming_v2.py"
+:: 1. Start REAL Pathway Intelligence Engine (Production)
+echo [1/4] Launching REAL Pathway Engine (Port 8000)...
+start "REAL Pathway Intelligence" cmd /k "cd /d "%~dp0backend" && python pathway_streaming_real.py"
 timeout /t 4 >nul
 
 :: 2. Start Event Generator Backend (Python)
