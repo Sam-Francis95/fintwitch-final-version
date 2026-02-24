@@ -5,7 +5,7 @@ const BACKEND_URL = 'http://localhost:8000';
 
 export const sendToBackend = async (transaction) => {
   try {
-    const response = await fetch(`${BACKEND_URL}/transaction`, {
+    const response = await fetch(`${BACKEND_URL}/ingest`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

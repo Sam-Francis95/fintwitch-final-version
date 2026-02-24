@@ -20,12 +20,15 @@ echo ========================================
 echo.
 echo Executing 'npm start'...
 echo Opening game in your browser...
-start "" "http://localhost:3000"
 echo Starting Financial Event Generator (Port 5000)...
 start "Financial Event Generator" cmd /k python backend/financial_event_generator.py
+timeout /t 2 /nobreak >nul
 echo Starting Budget System Backend (Port 5001)...
 start "Budget Backend" cmd /k python backend/budget_system.py
-call npm start
+timeout /t 2 /nobreak >nul
+echo Starting Frontend (Port 5173)...
+start "" "http://localhost:5173"
+call npm run dev
 
 if %errorlevel% neq 0 (
     echo.

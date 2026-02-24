@@ -105,15 +105,25 @@ class LLMService:
         self,
         metrics: Dict[str, Any],
         intelligence: Dict[str, Any],
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        advanced_analytics: Dict[str, Any] = None,
+        predictions: Dict[str, Any] = None,
+        external_signals: Dict[str, Any] = None,
+        fusion_metrics: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """
-        Generate comprehensive financial insights from live metrics
+        Generate comprehensive financial insights from live PROCESSED ANALYTICS
+        
+        IMPORTANT: LLM receives structured analytics, NOT raw transaction data
         
         Args:
             metrics: Core financial metrics (balance, income, expenses, etc.)
             intelligence: Rule-based intelligence (alerts, warnings, risk level)
             categories: Category breakdown data
+            advanced_analytics: Streaming transformations (velocity, trends, anomalies)
+            predictions: Forward-looking projections
+            external_signals: Market/economic context
+            fusion_metrics: Multi-source risk fusion
         
         Returns:
             Dict with summary, risk_analysis, recommendations, confidence
@@ -122,11 +132,20 @@ class LLMService:
             return self._mock_insights(metrics, intelligence)
         
         if self.provider == "gemini":
-            return await self._generate_gemini_insights(metrics, intelligence, categories)
+            return await self._generate_gemini_insights(
+                metrics, intelligence, categories, 
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
         elif self.provider == "openai":
-            return await self._generate_openai_insights(metrics, intelligence, categories)
+            return await self._generate_openai_insights(
+                metrics, intelligence, categories,
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
         elif self.provider == "ollama":
-            return await self._generate_ollama_insights(metrics, intelligence, categories)
+            return await self._generate_ollama_insights(
+                metrics, intelligence, categories,
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
         else:
             return self._mock_insights(metrics, intelligence)
     
@@ -134,9 +153,13 @@ class LLMService:
         self,
         metrics: Dict[str, Any],
         intelligence: Dict[str, Any],
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        advanced_analytics: Dict[str, Any] = None,
+        predictions: Dict[str, Any] = None,
+        external_signals: Dict[str, Any] = None,
+        fusion_metrics: Dict[str, Any] = None
     ) -> str:
-        """Build structured prompt with financial context"""
+        """Build enhanced prompt with PROCESSED ANALYTICS (not raw data)"""
         
         # Format category spending
         top_categories = sorted(
@@ -146,7 +169,8 @@ class LLMService:
         )[:3]
         category_text = ", ".join([f"{cat}: ₹{amt:.0f}" for cat, amt in top_categories if amt > 0])
         
-        prompt = f"""You are a financial advisor AI analyzing a user's real-time financial data.
+        # Build enhanced prompt with analytics
+        prompt = f"""You are a financial advisor AI analyzing REAL-TIME PROCESSED FINANCIAL ANALYTICS.
 
 CURRENT FINANCIAL STATE:
 - Balance: ₹{metrics.get('balance', 0):.2f}
@@ -158,23 +182,63 @@ CURRENT FINANCIAL STATE:
 RISK ASSESSMENT:
 - Risk Level: {intelligence.get('risk_level', 'UNKNOWN')}
 - Active Alerts: {len(intelligence.get('alerts', []))}
-- Active Warnings: {len(intelligence.get('warnings', []))}
+- Active Warnings: {len(intelligence.get('warnings', []))}"""
+
+        # Add advanced analytics if available
+        if advanced_analytics:
+            prompt += f"""
+
+STREAMING ANALYTICS:
+- Spending Velocity: ₹{advanced_analytics.get('spending_velocity', 0):.2f}/minute
+- Trend: {advanced_analytics.get('trend', 'stable').upper()}
+- Spending Pattern: {advanced_analytics.get('spending_pattern', 'normal')}
+- Anomaly Detected: {'YES' if advanced_analytics.get('anomaly_detected') else 'NO'}"""
+
+        # Add predictions if available
+        if predictions:
+            days_zero = predictions.get('days_until_zero_balance')
+            prompt += f"""
+
+PREDICTIVE INSIGHTS:
+- Balance Depletion: {f"In {days_zero} days" if days_zero else "Not at risk"}
+- Daily Burn Rate: ₹{predictions.get('burn_rate_per_day', 0):.2f}
+- Projected Monthly Deficit: ₹{predictions.get('projected_monthly_deficit', 0):.2f}
+- Recommended Daily Budget: ₹{predictions.get('recommended_daily_budget', 0):.2f}"""
+
+        # Add external context if available
+        if external_signals:
+            prompt += f"""
+
+EXTERNAL MARKET CONDITIONS:
+- Market Sentiment: {external_signals.get('market_sentiment', 0.5):.2f} (0=bearish, 1=bullish)
+- Market Volatility: {external_signals.get('market_volatility', 0):.2f}
+- Interest Rate: {external_signals.get('interest_rate', 0):.1f}%
+- Inflation Rate: {external_signals.get('inflation_rate', 0):.1f}%"""
+
+        # Add fusion metrics if available
+        if fusion_metrics:
+            prompt += f"""
+
+MULTI-SOURCE RISK ANALYSIS:
+- Overall Financial Risk: {fusion_metrics.get('overall_financial_risk', 0):.0f}/100
+- Market-Adjusted Health: {fusion_metrics.get('market_adjusted_health', 0):.0f}/100
+- Recommended Action: {fusion_metrics.get('recommended_action', 'monitor').replace('_', ' ').title()}"""
+
+        prompt += f"""
 
 TOP SPENDING CATEGORIES:
 {category_text if category_text else "No spending data yet"}
 
-ALERTS:
+ALERTS & WARNINGS:
 {chr(10).join(['- ' + alert for alert in intelligence.get('alerts', [])[:3]])}
-
-WARNINGS:
 {chr(10).join(['- ' + warning for warning in intelligence.get('warnings', [])[:2]])}
 
-Provide a concise financial analysis with:
-1. A brief summary (2-3 sentences) of their current financial state
-2. Risk analysis explaining why their risk is at this level
-3. 3-4 specific, actionable recommendations prioritized by importance
+TASK: Provide a concise financial analysis with:
+1. A brief summary (2-3 sentences) considering all analytics including trends and predictions
+2. Risk analysis explaining the current risk level using ALL available data sources
+3. 3-4 specific, actionable recommendations based on trends, predictions, and market conditions
 
-Be direct, practical, and encouraging. Use Indian Rupee (₹) format."""
+Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
         
         return prompt
     
@@ -182,11 +246,18 @@ Be direct, practical, and encouraging. Use Indian Rupee (₹) format."""
         self,
         metrics: Dict[str, Any],
         intelligence: Dict[str, Any],
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        advanced_analytics: Dict[str, Any] = None,
+        predictions: Dict[str, Any] = None,
+        external_signals: Dict[str, Any] = None,
+        fusion_metrics: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """Generate insights using Google Gemini API with modern SDK"""
         try:
-            prompt = self._build_context_prompt(metrics, intelligence, categories)
+            prompt = self._build_context_prompt(
+                metrics, intelligence, categories,
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
             
             # Generate content with modern GenAI client
             response = self.client.models.generate_content(
@@ -207,11 +278,18 @@ Be direct, practical, and encouraging. Use Indian Rupee (₹) format."""
         self,
         metrics: Dict[str, Any],
         intelligence: Dict[str, Any],
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        advanced_analytics: Dict[str, Any] = None,
+        predictions: Dict[str, Any] = None,
+        external_signals: Dict[str, Any] = None,
+        fusion_metrics: Dict[str, Any] = None
     ) -> Dict[str, Any]:
         """Generate insights using OpenAI API"""
         try:
-            prompt = self._build_context_prompt(metrics, intelligence, categories)
+            prompt = self._build_context_prompt(
+                metrics, intelligence, categories,
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
             
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -242,11 +320,18 @@ Be direct, practical, and encouraging. Use Indian Rupee (₹) format."""
         self,
         metrics: Dict[str, Any],
         intelligence: Dict[str, Any],
-        categories: Dict[str, Any]
+        categories: Dict[str, Any],
+        advanced_analytics: Dict[str, Any] = None,
+        predictions: Dict[str, Any] = None,
+        external_signals: Dict[str, Any] = None,
+        fusion_metrics: Dict[str, Any] = None
     ) -> Dict[str, Any]:
-        """Generate insights using Ollama local model"""
+        """Generate insights using Ollama local LLM"""
         try:
-            prompt = self._build_context_prompt(metrics, intelligence, categories)
+            prompt = self._build_context_prompt(
+                metrics, intelligence, categories,
+                advanced_analytics, predictions, external_signals, fusion_metrics
+            )
             
             response = self.client.post(
                 "/api/generate",

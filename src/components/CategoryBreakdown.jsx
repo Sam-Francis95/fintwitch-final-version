@@ -91,15 +91,15 @@ const CategoryBreakdown = () => {
       {/* Pie Chart */}
       {chartData.length > 0 && (
         <div className="mb-6">
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={280}>
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
+                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                outerRadius={90}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -113,6 +113,16 @@ const CategoryBreakdown = () => {
                   backgroundColor: '#1F2937', 
                   border: '1px solid #6366F1',
                   borderRadius: '0.5rem'
+                }}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={80}
+                iconType="circle"
+                formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                wrapperStyle={{
+                  paddingTop: '20px',
+                  fontSize: '12px'
                 }}
               />
             </PieChart>

@@ -74,12 +74,12 @@ const WindowedMetrics = () => {
         {/* Window Size Selector */}
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-400">Window:</span>
-          <div className="flex space-x-1">
+          <div className="flex flex-wrap gap-1">
             {windowOptions.map(option => (
               <button
                 key={option.value}
                 onClick={() => setWindowSize(option.value)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-all ${
+                className={`px-3 py-1 rounded text-sm font-medium transition-all whitespace-nowrap ${
                   windowSize === option.value
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600'

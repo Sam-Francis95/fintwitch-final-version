@@ -305,6 +305,12 @@ export function UserProvider({ children }) {
     };
 
     const transact = (amount, { source = "system", label = null } = {}) => {
+        // GUARD: Don't process transactions if user is not logged in
+        if (!user?.username || !firebaseUser) {
+            console.log('⚠️  Transaction blocked - user not authenticated');
+            return;
+        }
+        
         setUser((u) => {
             const newBalance = round2(Math.max(0, u.balance + amount));
             
@@ -335,7 +341,8 @@ export function UserProvider({ children }) {
     
     // Start event listener when user is logged in
     useEffect(() => {
-        if (user?.username && !eventListenerActive.current) {
+        // Only start events if BOTH local state AND Firebase auth are active
+        if (user?.username && firebaseUser && !eventListenerActive.current) {
             eventListenerActive.current = true;
             
             const handleEvent = (event) => {
@@ -356,7 +363,7 @@ export function UserProvider({ children }) {
                 eventListenerActive.current = false;
             }
         };
-    }, [user?.username]); // Only restart if username changes (login/logout)
+    }, [user?.username, firebaseUser]); // Check both local state and Firebase auth
 
     const markArticleRead = (id, reward = 10) => {
         setUser((u) => {
