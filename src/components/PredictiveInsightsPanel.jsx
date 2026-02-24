@@ -69,15 +69,15 @@ const PredictiveInsightsPanel = () => {
             {getTrendIcon(advancedAnalytics.trend)}
             <p className="text-xs text-gray-400">Spending Trend</p>
           </div>
-          <p className={`text-xl font-bold ${getTrendColor(advancedAnalytics.trend)}`}>
-            {advancedAnalytics.trend.toUpperCase()}
+          <p className={`text-xl font-bold ${getTrendColor(advancedAnalytics?.trend || 'stable')}`}>
+            {(advancedAnalytics?.trend || 'stable').toUpperCase()}
           </p>
         </div>
 
         <div className="bg-white/5 rounded-lg p-4 border border-white/10">
           <p className="text-xs text-gray-400 mb-2">Pattern</p>
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getPatternColor(advancedAnalytics.spending_pattern)}`}>
-            {advancedAnalytics.spending_pattern.toUpperCase()}
+          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getPatternColor(advancedAnalytics?.spending_pattern || 'normal')}`}>
+            {(advancedAnalytics?.spending_pattern || 'normal').toUpperCase()}
           </span>
         </div>
       </div>
@@ -89,7 +89,7 @@ const PredictiveInsightsPanel = () => {
           <div>
             <p className="text-xs text-gray-400 mb-1">Per Minute</p>
             <p className="text-2xl font-bold text-purple-300">
-              ₹{advancedAnalytics.spending_velocity?.toFixed(2) || '0.00'}
+              ₹{advancedAnalytics?.spending_velocity?.toFixed(2) || '0.00'}
             </p>
           </div>
           <div>
@@ -103,23 +103,20 @@ const PredictiveInsightsPanel = () => {
 
       {/* Balance Depletion Warning */}
       {predictions.days_until_zero_balance !== null && (
-        <div className={`rounded-lg p-4 border mb-4 ${
-          predictions.days_until_zero_balance < 7 
-            ? 'bg-red-500/20 border-red-500/50' 
+        <div className={`rounded-lg p-4 border mb-4 ${predictions.days_until_zero_balance < 7
+            ? 'bg-red-500/20 border-red-500/50'
             : 'bg-yellow-500/10 border-yellow-500/30'
-        }`}>
+          }`}>
           <div className="flex items-center gap-2 mb-2">
-            <Clock className={`w-5 h-5 ${
-              predictions.days_until_zero_balance < 7 ? 'text-red-400' : 'text-yellow-400'
-            }`} />
+            <Clock className={`w-5 h-5 ${predictions.days_until_zero_balance < 7 ? 'text-red-400' : 'text-yellow-400'
+              }`} />
             <h4 className="font-bold text-white">Balance Depletion Forecast</h4>
           </div>
           <p className="text-sm text-gray-300 mb-2">
             At current spending rate, your balance may reach zero in:
           </p>
-          <p className={`text-3xl font-bold ${
-            predictions.days_until_zero_balance < 7 ? 'text-red-400' : 'text-yellow-400'
-          }`}>
+          <p className={`text-3xl font-bold ${predictions.days_until_zero_balance < 7 ? 'text-red-400' : 'text-yellow-400'
+            }`}>
             {predictions.days_until_zero_balance} days
           </p>
         </div>

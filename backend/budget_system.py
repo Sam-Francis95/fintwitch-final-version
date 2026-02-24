@@ -100,7 +100,7 @@ def generate_alerts(budget_data):
             "id": str(uuid.uuid4()),
             "type": "warning",
             "category": "emergency_fund",
-            "message": f"Emergency fund low: ₹{buckets['emergency_fund']:.2f} (Recommended: ₹{RISK_THRESHOLDS['emergency_fund_low']})",
+            "message": f"Emergency fund low: Rupee {buckets['emergency_fund']:.2f} (Recommended: Rupee {RISK_THRESHOLDS['emergency_fund_low']})",
             "timestamp": datetime.now().isoformat(),
             "severity": "medium"
         })
@@ -111,7 +111,7 @@ def generate_alerts(budget_data):
             "id": str(uuid.uuid4()),
             "type": "warning",
             "category": "living_expenses",
-            "message": f"Living expenses bucket low: ₹{buckets['living_expenses']:.2f}",
+            "message": f"Living expenses bucket low: Rupee {buckets['living_expenses']:.2f}",
             "timestamp": datetime.now().isoformat(),
             "severity": "high"
         })
@@ -122,7 +122,7 @@ def generate_alerts(budget_data):
             "id": str(uuid.uuid4()),
             "type": "danger",
             "category": "cash_flow",
-            "message": f"Negative cash flow detected: ₹{metrics['net_cash_flow']:.2f}",
+            "message": f"Negative cash flow detected: Rupee {metrics['net_cash_flow']:.2f}",
             "timestamp": datetime.now().isoformat(),
             "severity": "critical"
         })
@@ -133,7 +133,7 @@ def generate_alerts(budget_data):
             "id": str(uuid.uuid4()),
             "type": "danger",
             "category": "overall",
-            "message": f"High financial risk - Total balance critically low: ₹{metrics['total_balance']:.2f}",
+            "message": f"High financial risk - Total balance critically low: Rupee {metrics['total_balance']:.2f}",
             "timestamp": datetime.now().isoformat(),
             "severity": "critical"
         })
@@ -208,7 +208,7 @@ def allocate_income():
     # Validate allocation total
     total_allocated = sum(allocations.values())
     if total_allocated > income_amount:
-        return jsonify({"error": f"Total allocation (₹{total_allocated}) exceeds income (₹{income_amount})"}), 400
+        return jsonify({"error": f"Total allocation (Rupee {total_allocated}) exceeds income (Rupee {income_amount})"}), 400
     
     with budget_lock:
         # Initialize if not exists
@@ -297,7 +297,7 @@ def handle_expense():
                 "id": str(uuid.uuid4()),
                 "type": "danger",
                 "category": bucket_name,
-                "message": f"Insufficient funds in {BUDGET_CATEGORIES[bucket_name]['name']}! Deficit: ₹{deficit:.2f}",
+                "message": f"Insufficient funds in {BUDGET_CATEGORIES[bucket_name]['name']}! Deficit: Rupee {deficit:.2f}",
                 "timestamp": datetime.now().isoformat(),
                 "severity": "critical"
             }
@@ -409,7 +409,7 @@ def status():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🏦 FinTwitch Budget Allocation System")
+    print("? FinTwitch Budget Allocation System")
     print("=" * 60)
     print("Endpoints:")
     print("  POST   /budget/init          - Initialize budget")

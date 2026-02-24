@@ -18,16 +18,16 @@ try:
     import pathway as pw
     if hasattr(pw, 'Schema') and hasattr(pw, 'io'):
         PATHWAY_MODE = "real"
-        print("✅ REAL PATHWAY ENGINE")
+        print("OK REAL PATHWAY ENGINE")
     else:
         raise ImportError("Stub detected")
 except (ImportError, AttributeError):
     try:
         from pathway_mock_advanced import pw, ConnectorSubject
         PATHWAY_MODE = "compatible"
-        print("✅ PATHWAY-COMPATIBLE ENGINE (Deploy on Linux for real Pathway)")
+        print("OK PATHWAY-COMPATIBLE ENGINE (Deploy on Linux for real Pathway)")
     except ImportError:
-        print("❌ ERROR: No Pathway engine available!")
+        print("? ERROR: No Pathway engine available!")
         sys.exit(1)
 
 
@@ -36,12 +36,12 @@ class PathwayFinancialEngine:
     
     def __init__(self):
         print(f"\n{'='*70}")
-        print("🌊 PATHWAY STREAMING ENGINE")
+        print("? PATHWAY STREAMING ENGINE")
         print(f"{'='*70}")
         print(f"Mode: {PATHWAY_MODE.upper()}")
         
         # Create input stream
-        print("\n📥 Creating input stream...")
+        print("\n? Creating input stream...")
         if PATHWAY_MODE == "real":
             self.connector = pw.io.python.ConnectorSubject(schema=TransactionSchema)
             self.stream = self.connector.to_table()
@@ -50,12 +50,12 @@ class PathwayFinancialEngine:
             self.stream = self.connector.get_table()
         
         # Create enriched stream with computed columns
-        print("⚙️  Applying transformations...")
+        print("??  Applying transformations...")
         self.enriched = self.stream.with_columns(
             signed_amount=lambda r: r['amount'] if r['type'] == 'income' else -r['amount']
         )
         
-        print("✅ Pipeline ready!\n" + "="*70 + "\n")
+        print("OK Pipeline ready!\n" + "="*70 + "\n")
     
     def ingest(self, txn: Dict[str, Any]) -> bool:
         """Ingest transaction into stream"""
@@ -146,9 +146,9 @@ class PathwayFinancialEngine:
         if len(recent) == 0:
             summary = f"No transactions in last {minutes} minutes"
         elif net_flow > 0:
-            summary = f"Net positive ₹{net_flow:.2f} in last {minutes} min"
+            summary = f"Net positive Rupee {net_flow:.2f} in last {minutes} min"
         elif net_flow < 0:
-            summary = f"Net negative ₹{abs(net_flow):.2f} in last {minutes} min"
+            summary = f"Net negative Rupee {abs(net_flow):.2f} in last {minutes} min"
         else:
             summary = f"Break-even in last {minutes} minutes"
         

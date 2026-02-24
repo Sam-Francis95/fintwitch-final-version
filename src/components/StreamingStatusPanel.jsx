@@ -57,13 +57,13 @@ const StreamingStatusPanel = () => {
     'operational': 'text-green-400',
     'warning': 'text-yellow-400',
     'error': 'text-red-400'
-  }[status.pipeline_health] || 'text-gray-400';
+  }[status?.pipeline_health || 'operational'] || 'text-gray-400';
 
   const pipelineHealthBg = {
     'operational': 'bg-green-500/20 border-green-500/50',
     'warning': 'bg-yellow-500/20 border-yellow-500/50',
     'error': 'bg-red-500/20 border-red-500/50'
-  }[status.pipeline_health] || 'bg-gray-500/20 border-gray-500/50';
+  }[status?.pipeline_health || 'operational'] || 'bg-gray-500/20 border-gray-500/50';
 
   return (
     <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur rounded-lg p-6 border border-purple-500/30">
@@ -78,7 +78,7 @@ const StreamingStatusPanel = () => {
           <h3 className="text-lg font-bold text-white">Pathway Streaming Engine</h3>
         </div>
         <div className={`px-3 py-1 rounded-full text-xs font-bold border ${pipelineHealthBg}`}>
-          <span className={pipelineHealthColor}>{status.pipeline_health.toUpperCase()}</span>
+          <span className={pipelineHealthColor}>{(status?.pipeline_health || 'operational').toUpperCase()}</span>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ const StreamingStatusPanel = () => {
             <Zap className="w-4 h-4 text-blue-400" />
             <p className="text-xs text-gray-400 uppercase">Events Processed</p>
           </div>
-          <p className="text-2xl font-bold text-white">{status.events_processed.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-white">{(status?.events_processed || 0).toLocaleString()}</p>
         </div>
 
         <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/30">
@@ -97,7 +97,7 @@ const StreamingStatusPanel = () => {
             <TrendingUp className="w-4 h-4 text-purple-400" />
             <p className="text-xs text-gray-400 uppercase">Transactions</p>
           </div>
-          <p className="text-2xl font-bold text-white">{status.transactions_processed.toLocaleString()}</p>
+          <p className="text-2xl font-bold text-white">{(status?.transactions_processed || 0).toLocaleString()}</p>
         </div>
 
         <div className="bg-cyan-500/10 rounded-lg p-4 border border-cyan-500/30">

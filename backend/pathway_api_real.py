@@ -5,7 +5,7 @@ FastAPI serves ONLY as ingestion and serving layer.
 ALL business logic happens in Pathway streaming engine.
 
 Architecture:
-    POST /ingest → Pathway Stream → Automatic Recomputation → GET /metrics
+    POST /ingest -> Pathway Stream -> Automatic Recomputation -> GET /metrics
 
 Endpoints:
     - POST /ingest: Add transaction to stream
@@ -53,10 +53,10 @@ pathway_engine = None
 async def startup_event():
     """Initialize Pathway engine"""
     global pathway_engine
-    print("\n🚀 Starting FinTwitch Pathway API Server")
+    print("\n? Starting FinTwitch Pathway API Server")
     print("="*70)
     pathway_engine = get_pathway_engine()
-    print("\n✅ Server ready to accept requests")
+    print("\nOK Server ready to accept requests")
     print("="*70)
 
 # ===== DATA MODELS =====
@@ -388,7 +388,7 @@ async def get_all_transactions(limit: int = Query(default=100, le=1000)) -> Dict
 
 if __name__ == "__main__":
     print("\n" + "="*70)
-    print("🌊 FinTwitch REAL Pathway Streaming API")
+    print("? FinTwitch REAL Pathway Streaming API")
     print("="*70)
     print(f"Pathway Mode: {PATHWAY_MODE}")
     print("\nStarting server...")

@@ -11,11 +11,11 @@ try:
     if not hasattr(pw, 'Schema'):
         raise ImportError("Stub pathway package detected")
     USING_MOCK = False
-    print("✓ Using real Pathway streaming engine")
+    print("+ Using real Pathway streaming engine")
 except (ImportError, AttributeError):
     from pathway_mock import pw
     USING_MOCK = True
-    print("⚠ Using mock Pathway implementation (install real Pathway for production)")
+    print("? Using mock Pathway implementation (install real Pathway for production)")
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,7 +70,7 @@ def initialize_pathway_stream():
     """Initialize Pathway streaming engine"""
     global transaction_connector, transactions_table
     
-    print("🚀 Initializing Pathway Streaming Engine...")
+    print("? Initializing Pathway Streaming Engine...")
     
     if USING_MOCK:
         # Simple mock initialization
@@ -85,7 +85,7 @@ def initialize_pathway_stream():
         )
         transactions_table = transaction_connector.to_table()
     
-    print("✅ Pathway Stream Initialized")
+    print("OK Pathway Stream Initialized")
     print(f"   - Engine: {'Mock (Development)' if USING_MOCK else 'Real Pathway'}")
     print("   - Real-time transaction processing: ACTIVE")
     print("   - Metrics computation: ACTIVE")
@@ -225,7 +225,7 @@ async def root():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("🌊 PATHWAY REAL-TIME STREAMING ENGINE")
+    print("? PATHWAY REAL-TIME STREAMING ENGINE")
     print("=" * 60)
     print("Port: 8000")
     print("Endpoints:")

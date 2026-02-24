@@ -78,12 +78,12 @@ const IntelligencePanel = () => {
             Real-Time
           </span>
         </div>
-        
+
         {/* Risk Indicator */}
-        <div className={`flex items-center space-x-2 px-3 py-1 rounded ${getRiskBg(intelligence.risk_level)}`}>
-          <Shield className={`w-4 h-4 ${getRiskColor(intelligence.risk_level)}`} />
-          <span className={`font-semibold ${getRiskColor(intelligence.risk_level)}`}>
-            {intelligence.risk_level}
+        <div className={`flex items-center space-x-2 px-3 py-1 rounded ${getRiskBg(intelligence?.risk_level || 'LOW')}`}>
+          <Shield className={`w-4 h-4 ${getRiskColor(intelligence?.risk_level || 'LOW')}`} />
+          <span className={`font-semibold ${getRiskColor(intelligence?.risk_level || 'LOW')}`}>
+            {intelligence?.risk_level || 'LOW'}
           </span>
         </div>
       </div>
@@ -93,17 +93,16 @@ const IntelligencePanel = () => {
         <div className="flex items-center justify-between mb-2">
           <span className="text-gray-300 font-medium">Financial Health Score</span>
           <span className="text-2xl font-bold text-purple-400">
-            {intelligence.financial_health_score}/100
+            {intelligence?.financial_health_score || 0}/100
           </span>
         </div>
         <div className="w-full bg-gray-600 rounded-full h-2">
           <div
-            className={`h-2 rounded-full transition-all duration-500 ${
-              intelligence.financial_health_score >= 80 ? 'bg-green-500' :
-              intelligence.financial_health_score >= 50 ? 'bg-yellow-500' :
-              'bg-red-500'
-            }`}
-            style={{ width: `${intelligence.financial_health_score}%` }}
+            className={`h-2 rounded-full transition-all duration-500 ${(intelligence?.financial_health_score || 0) >= 80 ? 'bg-green-500' :
+                (intelligence?.financial_health_score || 0) >= 50 ? 'bg-yellow-500' :
+                  'bg-red-500'
+              }`}
+            style={{ width: `${intelligence?.financial_health_score || 0}%` }}
           />
         </div>
       </div>
@@ -183,14 +182,14 @@ const IntelligencePanel = () => {
 
         {/* No issues - all clear */}
         {(!intelligence.alerts || intelligence.alerts.length === 0) &&
-         (!intelligence.warnings || intelligence.warnings.length === 0) &&
-         intelligence.risk_level === 'LOW' && (
-          <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-            <p className="text-green-300 text-center font-medium">
-              ✅ All systems operational - financial health is excellent!
-            </p>
-          </div>
-        )}
+          (!intelligence.warnings || intelligence.warnings.length === 0) &&
+          intelligence.risk_level === 'LOW' && (
+            <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <p className="text-green-300 text-center font-medium">
+                ✅ All systems operational - financial health is excellent!
+              </p>
+            </div>
+          )}
       </div>
 
       {/* Risk Factors Summary */}

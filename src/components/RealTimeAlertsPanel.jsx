@@ -34,13 +34,13 @@ const RealTimeAlertsPanel = () => {
 
   if (!alerts) return null;
 
-  const hasAlerts = alerts.critical?.length > 0 || alerts.warnings?.length > 0 || alerts.opportunities?.length > 0;
+  const hasAlerts = alerts?.critical?.length > 0 || alerts?.warnings?.length > 0 || alerts?.opportunities?.length > 0;
 
   return (
     <div className="bg-gradient-to-br from-red-900/20 to-orange-900/20 backdrop-blur rounded-lg p-6 border border-red-500/30">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-white">Real-Time Alerts</h3>
-        {alerts.triggered_at && (
+        {alerts?.triggered_at && (
           <span className="text-xs text-gray-400">
             {new Date(alerts.triggered_at).toLocaleTimeString()}
           </span>

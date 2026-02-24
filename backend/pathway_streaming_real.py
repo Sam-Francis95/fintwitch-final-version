@@ -13,7 +13,7 @@ Features:
 - Financial intelligence rule engine
 
 Architecture:
-    Transaction Events → Pathway Stream → Transformations → Aggregations → API
+    Transaction Events -> Pathway Stream -> Transformations -> Aggregations -> API
 """
 
 from fastapi import FastAPI, HTTPException, Query
@@ -32,10 +32,10 @@ try:
     if not hasattr(pw, 'Schema'):
         raise ImportError("Stub pathway detected")
     PATHWAY_AVAILABLE = True
-    print("✅ REAL Pathway streaming engine loaded")
+    print("OK REAL Pathway streaming engine loaded")
 except (ImportError, AttributeError) as e:
-    print(f"⚠️  Real Pathway not available: {e}")
-    print("📦 Install from: https://pathway.com/developers/")
+    print(f"??  Real Pathway not available: {e}")
+    print("? Install from: https://pathway.com/developers/")
     PATHWAY_AVAILABLE = False
 
 # Import LLM service
@@ -244,12 +244,12 @@ if PATHWAY_AVAILABLE:
         try:
             pw.run()
         except Exception as e:
-            print(f"❌ Pathway computation error: {e}")
+            print(f"? Pathway computation error: {e}")
     
     # Start Pathway in daemon thread
     pathway_thread = threading.Thread(target=run_pathway_computation, daemon=True)
     pathway_thread.start()
-    print("✅ Pathway streaming computation started in background")
+    print("OK Pathway streaming computation started in background")
 
 else:
     # Fallback: Simple in-memory aggregation (not real streaming)
@@ -316,25 +316,25 @@ def compute_intelligence():
     
     # Rule 1: Overspending
     if expenses > income and income > 0:
-        alerts.append(f"🚨 OVERSPENDING: Expenses (₹{expenses:.2f}) exceed income (₹{income:.2f})")
+        alerts.append(f"? OVERSPENDING: Expenses (Rupee {expenses:.2f}) exceed income (Rupee {income:.2f})")
         risk_factors['overspending'] = True
-        recommendations.append("🎯 Priority: Reduce discretionary spending by 20-30%")
+        recommendations.append("? Priority: Reduce discretionary spending by 20-30%")
     
     # Rule 2: Negative balance
     if balance < 0:
-        alerts.append(f"⚠️ NEGATIVE BALANCE: Account overdrawn by ₹{abs(balance):.2f}")
+        alerts.append(f"?? NEGATIVE BALANCE: Account overdrawn by Rupee {abs(balance):.2f}")
         risk_factors['negative_balance'] = True
-        recommendations.append("🚨 Immediate: Stop non-essential spending")
+        recommendations.append("? Immediate: Stop non-essential spending")
     
     # Rule 3: Low balance
     elif balance < 5000:
-        warnings.append(f"💰 Low balance warning: Only ₹{balance:.2f} remaining")
+        warnings.append(f"? Low balance warning: Only Rupee {balance:.2f} remaining")
         risk_factors['low_balance'] = True
-        recommendations.append("💰 Build emergency fund to ₹15,000 minimum")
+        recommendations.append("? Build emergency fund to Rupee 15,000 minimum")
     
     # Rule 4: Emergency fund check
     if balance < 5000:
-        warnings.append("🏦 Emergency fund risk: Balance below recommended ₹5,000")
+        warnings.append("? Emergency fund risk: Balance below recommended Rupee 5,000")
         risk_factors['insufficient_emergency_fund'] = True
     
     # Rule 5: Top spending categories
@@ -347,17 +347,17 @@ def compute_intelligence():
         if top_expense_cat[0] and expenses > 0:
             percentage = (top_expense_cat[1] / expenses) * 100
             if percentage > 30:
-                insights.append(f"📊 '{top_expense_cat[0]}' represents {percentage:.0f}% of spending")
-                recommendations.append(f"📉 Consider reducing '{top_expense_cat[0]}' expenses")
+                insights.append(f"? '{top_expense_cat[0]}' represents {percentage:.0f}% of spending")
+                recommendations.append(f"? Consider reducing '{top_expense_cat[0]}' expenses")
     
     # Rule 6: Health score insights
     health_score = metrics['financial_health_score']
     if health_score < 30:
-        insights.append("⚠️ Financial health is in critical range")
+        insights.append("?? Financial health is in critical range")
     elif health_score < 60:
-        insights.append("📊 Financial health needs improvement")
+        insights.append("? Financial health needs improvement")
     else:
-        insights.append("✅ Maintaining healthy financial habits")
+        insights.append("OK Maintaining healthy financial habits")
     
     # Risk level classification
     if balance < 0 or (income > 0 and expenses > income * 2):
@@ -372,11 +372,11 @@ def compute_intelligence():
     # Default recommendations
     if not recommendations:
         if risk_level == "LOW":
-            recommendations.append("✅ Continue current spending habits")
-            recommendations.append("📈 Consider allocating to savings/investments")
+            recommendations.append("OK Continue current spending habits")
+            recommendations.append("? Consider allocating to savings/investments")
         else:
-            recommendations.append("📊 Track spending by category weekly")
-            recommendations.append("🎯 Set monthly budget limits")
+            recommendations.append("? Track spending by category weekly")
+            recommendations.append("? Set monthly budget limits")
     
     with state_lock:
         latest_intelligence.update({
@@ -440,7 +440,7 @@ async def ingest_transaction(event: TransactionEvent):
         try:
             transaction_subject.next(**transaction)
         except Exception as e:
-            print(f"❌ Pathway ingestion error: {e}")
+            print(f"? Pathway ingestion error: {e}")
             raise HTTPException(status_code=500, detail=f"Ingestion failed: {e}")
     else:
         # Fallback to in-memory
@@ -485,9 +485,9 @@ def get_windowed_metrics(window_minutes: int = Query(5, ge=1, le=60)):
             if windowed['recent_transactions'] == 0:
                 windowed['period_summary'] = f"No transactions in last {window_minutes} minutes"
             elif net_flow > 0:
-                windowed['period_summary'] = f"Positive flow: ₹{net_flow:.2f} in last {window_minutes} min"
+                windowed['period_summary'] = f"Positive flow: Rupee {net_flow:.2f} in last {window_minutes} min"
             else:
-                windowed['period_summary'] = f"Spending: ₹{abs(net_flow):.2f} in last {window_minutes} min"
+                windowed['period_summary'] = f"Spending: Rupee {abs(net_flow):.2f} in last {window_minutes} min"
         
         return windowed
 
@@ -559,7 +559,7 @@ def root():
 async def startup_event():
     """Initialize on startup"""
     print("\n" + "="*70)
-    print("🚀 FINTWITCH REAL PATHWAY INTELLIGENCE ENGINE")
+    print("? FINTWITCH REAL PATHWAY INTELLIGENCE ENGINE")
     print("="*70)
     print(f"Engine Type: {'REAL Pathway Streaming' if PATHWAY_AVAILABLE else 'Fallback Mode'}")
     if PATHWAY_AVAILABLE:
@@ -567,20 +567,20 @@ async def startup_event():
     print(f"LLM Provider: {get_llm_service().provider}")
     print(f"Port: 8000")
     print("\nEndpoints:")
-    print("  📥 POST http://localhost:8000/ingest       - Ingest transactions")
-    print("  📊 GET  http://localhost:8000/metrics      - Core metrics")
-    print("  📂 GET  http://localhost:8000/metrics/categories - Category breakdown")
-    print("  ⏰ GET  http://localhost:8000/metrics/windowed - Time windows")
-    print("  🧠 GET  http://localhost:8000/intelligence - Financial intelligence")
-    print("  🤖 GET  http://localhost:8000/insights/llm - Real LLM insights")
-    print("  📖 GET  http://localhost:8000/docs        - API documentation")
+    print("  ? POST http://localhost:8000/ingest       - Ingest transactions")
+    print("  ? GET  http://localhost:8000/metrics      - Core metrics")
+    print("  ? GET  http://localhost:8000/metrics/categories - Category breakdown")
+    print("  ? GET  http://localhost:8000/metrics/windowed - Time windows")
+    print("  ? GET  http://localhost:8000/intelligence - Financial intelligence")
+    print("  ? GET  http://localhost:8000/insights/llm - Real LLM insights")
+    print("  ? GET  http://localhost:8000/docs        - API documentation")
     print("="*70)
     
     if not PATHWAY_AVAILABLE:
-        print("\n⚠️  WARNING: Real Pathway not available. Using fallback mode.")
-        print("📦 Install Pathway from: https://pathway.com/developers/")
+        print("\n??  WARNING: Real Pathway not available. Using fallback mode.")
+        print("? Install Pathway from: https://pathway.com/developers/")
     
-    print("\n✅ ENGINE READY FOR REAL-TIME INTELLIGENCE\n")
+    print("\nOK ENGINE READY FOR REAL-TIME INTELLIGENCE\n")
 
 # ==================== RUN ====================
 

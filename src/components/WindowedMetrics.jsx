@@ -56,7 +56,7 @@ const WindowedMetrics = () => {
     { value: 60, label: '1 hour' }
   ];
 
-  const netFlow = metrics.recent_income - metrics.recent_expenses;
+  const netFlow = (metrics?.recent_income || 0) - (metrics?.recent_expenses || 0);
   const isPositive = netFlow >= 0;
 
   return (
@@ -70,7 +70,7 @@ const WindowedMetrics = () => {
             Rolling Window
           </span>
         </div>
-        
+
         {/* Window Size Selector */}
         <div className="flex items-center space-x-2">
           <span className="text-sm text-gray-400">Window:</span>
@@ -79,11 +79,10 @@ const WindowedMetrics = () => {
               <button
                 key={option.value}
                 onClick={() => setWindowSize(option.value)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-all whitespace-nowrap ${
-                  windowSize === option.value
+                className={`px-3 py-1 rounded text-sm font-medium transition-all whitespace-nowrap ${windowSize === option.value
                     ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/50'
                     : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
-                }`}
+                  }`}
               >
                 {option.label}
               </button>
@@ -93,21 +92,19 @@ const WindowedMetrics = () => {
       </div>
 
       {/* Period Summary Banner */}
-      <div className={`p-4 rounded-lg mb-6 ${
-        metrics.recent_transactions === 0
+      <div className={`p-4 rounded-lg mb-6 ${metrics.recent_transactions === 0
           ? 'bg-gray-700/50 border border-gray-600'
           : isPositive
-          ? 'bg-green-500/10 border border-green-500/30'
-          : 'bg-red-500/10 border border-red-500/30'
-      }`}>
-        <p className={`text-center font-medium ${
-          metrics.recent_transactions === 0
+            ? 'bg-green-500/10 border border-green-500/30'
+            : 'bg-red-500/10 border border-red-500/30'
+        }`}>
+        <p className={`text-center font-medium ${(metrics?.recent_transactions || 0) === 0
             ? 'text-gray-400'
             : isPositive
-            ? 'text-green-300'
-            : 'text-red-300'
-        }`}>
-          {metrics.period_summary}
+              ? 'text-green-300'
+              : 'text-red-300'
+          }`}>
+          {metrics?.period_summary || 'No data for this period'}
         </p>
       </div>
 
@@ -122,7 +119,7 @@ const WindowedMetrics = () => {
             </span>
           </div>
           <p className="text-2xl font-bold text-green-300">
-            ₹{metrics.recent_income.toFixed(2)}
+            ₹{metrics?.recent_income?.toFixed(2) || '0.00'}
           </p>
           <p className="text-xs text-green-400/60 mt-1">
             Last {windowSize} min
@@ -138,7 +135,7 @@ const WindowedMetrics = () => {
             </span>
           </div>
           <p className="text-2xl font-bold text-red-300">
-            ₹{metrics.recent_expenses.toFixed(2)}
+            ₹{metrics?.recent_expenses?.toFixed(2) || '0.00'}
           </p>
           <p className="text-xs text-red-400/60 mt-1">
             Last {windowSize} min
@@ -157,12 +154,12 @@ const WindowedMetrics = () => {
             </span>
           </div>
           <p className="text-2xl font-bold text-blue-300">
-            {metrics.recent_transactions}
+            {metrics?.recent_transactions || 0}
           </p>
           <p className="text-xs text-blue-400/60 mt-1">
-            {metrics.recent_transactions === 0 
+            {(metrics?.recent_transactions || 0) === 0
               ? 'No activity'
-              : `${(metrics.recent_transactions / windowSize).toFixed(1)}/min`
+              : `${((metrics?.recent_transactions || 0) / windowSize).toFixed(1)}/min`
             }
           </p>
         </div>
@@ -176,7 +173,7 @@ const WindowedMetrics = () => {
             </span>
           </div>
           <p className="text-2xl font-bold text-purple-300">
-            ₹{metrics.spending_rate_per_minute.toFixed(1)}
+            ₹{metrics?.spending_rate_per_minute?.toFixed(1) || '0.0'}
           </p>
           <p className="text-xs text-purple-400/60 mt-1">
             Per minute
@@ -185,7 +182,7 @@ const WindowedMetrics = () => {
       </div>
 
       {/* High Activity Warning */}
-      {metrics.spending_rate_per_minute > 100 && (
+      {(metrics?.spending_rate_per_minute || 0) > 100 && (
         <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
           <div className="flex items-center space-x-2">
             <Zap className="w-4 h-4 text-orange-400" />

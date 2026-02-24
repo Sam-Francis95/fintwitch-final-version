@@ -34,17 +34,17 @@ def generate_event(user_balance=None):
         # Expenses only resume after balance reaches RECOVERY_THRESHOLD
         income_probability = 1.0
         expense_multiplier = 0.0
-        print(f"🚨 RECOVERY MODE (Balance: ₹{user_balance:.2f}) - INCOME ONLY until ₹{RECOVERY_THRESHOLD}!")
+        print(f"? RECOVERY MODE (Balance: Rupee {user_balance:.2f}) - INCOME ONLY until Rupee {RECOVERY_THRESHOLD}!")
     elif user_balance is not None and user_balance < LOW_BALANCE_THRESHOLD:
         # Low balance: 80% Income, 20% Expense (help user recover)
         income_probability = 0.80
         expense_multiplier = 0.4  # Reduce expense amounts significantly
-        print(f"⚠️  LOW BALANCE MODE ({user_balance}) - Boosting income...")
+        print(f"??  LOW BALANCE MODE ({user_balance}) - Boosting income...")
     elif user_balance is not None and user_balance < RECOVERY_BALANCE_THRESHOLD:
         # Recovery mode: 50% Income, 50% Expense (balanced)
         income_probability = 0.50
         expense_multiplier = 0.7
-        print(f"📈 RECOVERY MODE ({user_balance}) - Balanced generation...")
+        print(f"? RECOVERY MODE ({user_balance}) - Balanced generation...")
     else:
         # Normal mode: 20% Income, 80% Expense (challenge player)
         income_probability = 0.20
@@ -97,14 +97,14 @@ def forward_to_pathway(event):
         
         response = requests.post(PATHWAY_INGEST_URL, json=pathway_event, timeout=1)
         if response.status_code == 200:
-            print(f"  ✓ Forwarded to Pathway")
+            print(f"  + Forwarded to Pathway")
         else:
-            print(f"  ⚠ Pathway ingestion failed: {response.status_code}")
+            print(f"  ? Pathway ingestion failed: {response.status_code}")
     except requests.exceptions.RequestException as e:
         # Fail silently - Pathway might not be running
-        print(f"  ⚠ Pathway unavailable: {str(e)[:50]}")
+        print(f"  ? Pathway unavailable: {str(e)[:50]}")
     except Exception as e:
-        print(f"  ⚠ Error forwarding to Pathway: {str(e)[:50]}")
+        print(f"  ? Error forwarding to Pathway: {str(e)[:50]}")
 
 def print_event(event):
     """Pretty prints the event details."""

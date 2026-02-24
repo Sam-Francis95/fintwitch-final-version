@@ -35,7 +35,7 @@ class LLMService:
             self._init_ollama()
         else:
             self.provider = "mock"
-            print("⚠️  LLM Provider: Mock (set LLM_PROVIDER in .env for real AI)")
+            print("INFO: LLM Provider: Mock (set LLM_PROVIDER in .env for real AI)")
     
     def _init_gemini(self):
         """Initialize Google Gemini client using modern google-genai SDK"""
@@ -43,8 +43,8 @@ class LLMService:
             from google import genai
             api_key = os.getenv("GEMINI_API_KEY")
             if not api_key or api_key == "your_gemini_api_key_here":
-                print("⚠️  Gemini API key not configured, falling back to mock")
-                print("📝 Get FREE API key at: https://aistudio.google.com/app/apikey")
+                print("INFO: Gemini API key not configured, falling back to mock")
+                print("INFO: Get FREE API key at: https://aistudio.google.com/app/apikey")
                 self.provider = "mock"
                 return
             
@@ -52,35 +52,35 @@ class LLMService:
             self.client = genai.Client(api_key=api_key)
             self.model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
             self.max_tokens = int(os.getenv("GEMINI_MAX_TOKENS", "500"))
-            print(f"✓ LLM Provider: Google Gemini ({self.model_name})")
-            print("✅ Using modern google-genai SDK")
+            print(f"+ LLM Provider: Google Gemini ({self.model_name})")
+            print("OK Using modern google-genai SDK")
         except ImportError:
-            print("⚠️  Google GenAI package not installed, falling back to mock")
-            print("📦 Install with: pip install -U google-genai")
+            print("INFO: Google GenAI package not installed, falling back to mock")
+            print("INFO: Install with: pip install -U google-genai")
             self.provider = "mock"
         except Exception as e:
-            print(f"⚠️  Gemini initialization failed: {e}, falling back to mock")
+            print(f"ERROR: Gemini initialization failed: {e}, falling back to mock")
             self.provider = "mock"
     
     def _init_openai(self):
         """Initialize OpenAI client"""
         try:
-            from openai import OpenAI
+            from openai import AsyncOpenAI
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key or api_key == "your_openai_api_key_here":
-                print("⚠️  OpenAI API key not configured, falling back to mock")
+                print("INFO: OpenAI API key not configured, falling back to mock")
                 self.provider = "mock"
                 return
             
-            self.client = OpenAI(api_key=api_key)
+            self.client = AsyncOpenAI(api_key=api_key)
             self.model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
             self.max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "500"))
-            print(f"✓ LLM Provider: OpenAI ({self.model})")
+            print(f"+ LLM Provider: OpenAI ({self.model})")
         except ImportError:
-            print("⚠️  OpenAI package not installed, falling back to mock")
+            print("INFO: OpenAI package not installed, falling back to mock")
             self.provider = "mock"
         except Exception as e:
-            print(f"⚠️  OpenAI initialization failed: {e}, falling back to mock")
+            print(f"ERROR: OpenAI initialization failed: {e}, falling back to mock")
             self.provider = "mock"
     
     def _init_ollama(self):
@@ -94,11 +94,11 @@ class LLMService:
             # Test connection
             response = self.client.get("/api/tags")
             if response.status_code == 200:
-                print(f"✓ LLM Provider: Ollama ({self.model})")
+                print(f"+ LLM Provider: Ollama ({self.model})")
             else:
                 raise ConnectionError("Ollama not responding")
         except Exception as e:
-            print(f"⚠️  Ollama initialization failed: {e}, falling back to mock")
+            print(f"??  Ollama initialization failed: {e}, falling back to mock")
             self.provider = "mock"
     
     async def generate_financial_insights(
@@ -167,15 +167,15 @@ class LLMService:
             key=lambda x: x[1],
             reverse=True
         )[:3]
-        category_text = ", ".join([f"{cat}: ₹{amt:.0f}" for cat, amt in top_categories if amt > 0])
+        category_text = ", ".join([f"{cat}: Rupee {amt:.0f}" for cat, amt in top_categories if amt > 0])
         
         # Build enhanced prompt with analytics
         prompt = f"""You are a financial advisor AI analyzing REAL-TIME PROCESSED FINANCIAL ANALYTICS.
 
 CURRENT FINANCIAL STATE:
-- Balance: ₹{metrics.get('balance', 0):.2f}
-- Total Income: ₹{metrics.get('total_income', 0):.2f}
-- Total Expenses: ₹{metrics.get('total_expenses', 0):.2f}
+- Balance: Rupee {metrics.get('balance', 0):.2f}
+- Total Income: Rupee {metrics.get('total_income', 0):.2f}
+- Total Expenses: Rupee {metrics.get('total_expenses', 0):.2f}
 - Transactions: {metrics.get('transaction_count', 0)}
 - Financial Health Score: {metrics.get('financial_health_score', 0):.1f}/100
 
@@ -189,7 +189,7 @@ RISK ASSESSMENT:
             prompt += f"""
 
 STREAMING ANALYTICS:
-- Spending Velocity: ₹{advanced_analytics.get('spending_velocity', 0):.2f}/minute
+- Spending Velocity: Rupee {advanced_analytics.get('spending_velocity', 0):.2f}/minute
 - Trend: {advanced_analytics.get('trend', 'stable').upper()}
 - Spending Pattern: {advanced_analytics.get('spending_pattern', 'normal')}
 - Anomaly Detected: {'YES' if advanced_analytics.get('anomaly_detected') else 'NO'}"""
@@ -201,9 +201,9 @@ STREAMING ANALYTICS:
 
 PREDICTIVE INSIGHTS:
 - Balance Depletion: {f"In {days_zero} days" if days_zero else "Not at risk"}
-- Daily Burn Rate: ₹{predictions.get('burn_rate_per_day', 0):.2f}
-- Projected Monthly Deficit: ₹{predictions.get('projected_monthly_deficit', 0):.2f}
-- Recommended Daily Budget: ₹{predictions.get('recommended_daily_budget', 0):.2f}"""
+- Daily Burn Rate: Rupee {predictions.get('burn_rate_per_day', 0):.2f}
+- Projected Monthly Deficit: Rupee {predictions.get('projected_monthly_deficit', 0):.2f}
+- Recommended Daily Budget: Rupee {predictions.get('recommended_daily_budget', 0):.2f}"""
 
         # Add external context if available
         if external_signals:
@@ -238,7 +238,7 @@ TASK: Provide a concise financial analysis with:
 2. Risk analysis explaining the current risk level using ALL available data sources
 3. 3-4 specific, actionable recommendations based on trends, predictions, and market conditions
 
-Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
+Be direct, practical, and data-driven. Use Indian Rupee (Rupee ) format."""
         
         return prompt
     
@@ -259,8 +259,8 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
                 advanced_analytics, predictions, external_signals, fusion_metrics
             )
             
-            # Generate content with modern GenAI client
-            response = self.client.models.generate_content(
+            # Generate content with modern GenAI client (async)
+            response = await self.client.aio.models.generate_content(
                 model=self.model_name,
                 contents=prompt
             )
@@ -271,7 +271,7 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
             return self._parse_llm_response(content, metrics, intelligence)
             
         except Exception as e:
-            print(f"❌ Gemini API error: {e}")
+            print(f"? Gemini API error: {e}")
             return self._mock_insights(metrics, intelligence)
     
     async def _generate_openai_insights(
@@ -291,7 +291,7 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
                 advanced_analytics, predictions, external_signals, fusion_metrics
             )
             
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
                     {
@@ -313,7 +313,7 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
             return self._parse_llm_response(content, metrics, intelligence)
             
         except Exception as e:
-            print(f"❌ OpenAI API error: {e}")
+            print(f"? OpenAI API error: {e}")
             return self._mock_insights(metrics, intelligence)
     
     async def _generate_ollama_insights(
@@ -349,7 +349,7 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
                 raise Exception(f"Ollama returned status {response.status_code}")
                 
         except Exception as e:
-            print(f"❌ Ollama API error: {e}")
+            print(f"? Ollama API error: {e}")
             return self._mock_insights(metrics, intelligence)
     
     def _parse_llm_response(
@@ -389,9 +389,9 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
                 risk_lines.append(line)
             elif current_section == "recommendations":
                 # Extract bullet points or numbered lists
-                if line.startswith(('1.', '2.', '3.', '4.', '-', '•', '*')):
+                if line.startswith(('1.', '2.', '3.', '4.', '-', '*', '*')):
                     # Clean up numbering/bullets
-                    rec_lines.append(line.lstrip('1234567890.-•* '))
+                    rec_lines.append(line.lstrip('1234567890.-** '))
         
         # Combine sections
         summary = ' '.join(summary_lines[:3]) if summary_lines else "Financial analysis in progress."
@@ -423,13 +423,13 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
         
         # Generate contextual summary
         if balance < 0:
-            summary = f"⚠️ Critical: Your account is overdrawn by ₹{abs(balance):.2f}. Expenses (₹{expenses:.2f}) have exceeded income (₹{income:.2f})."
+            summary = f"?? Critical: Your account is overdrawn by Rupee {abs(balance):.2f}. Expenses (Rupee {expenses:.2f}) have exceeded income (Rupee {income:.2f})."
         elif expenses > income:
-            summary = f"⚠️ High risk: Expenses (₹{expenses:.2f}) exceed income (₹{income:.2f}) by ₹{expenses - income:.2f}. Current balance: ₹{balance:.2f}."
+            summary = f"?? High risk: Expenses (Rupee {expenses:.2f}) exceed income (Rupee {income:.2f}) by Rupee {expenses - income:.2f}. Current balance: Rupee {balance:.2f}."
         elif balance < 5000:
-            summary = f"💰 Low balance warning: Only ₹{balance:.2f} remaining. You've earned ₹{income:.2f} and spent ₹{expenses:.2f}."
+            summary = f"? Low balance warning: Only Rupee {balance:.2f} remaining. You've earned Rupee {income:.2f} and spent Rupee {expenses:.2f}."
         else:
-            summary = f"✅ Stable finances: Balance of ₹{balance:.2f} with healthy income (₹{income:.2f}) vs expenses (₹{expenses:.2f})."
+            summary = f"OK Stable finances: Balance of Rupee {balance:.2f} with healthy income (Rupee {income:.2f}) vs expenses (Rupee {expenses:.2f})."
         
         # Risk explanation
         expense_ratio = (expenses / max(income, 1)) * 100
@@ -444,20 +444,20 @@ Be direct, practical, and data-driven. Use Indian Rupee (₹) format."""
         # Context-aware recommendations
         recommendations = []
         if balance < 0:
-            recommendations.append("🚨 Priority 1: Stop all non-essential spending immediately")
-            recommendations.append("💰 Priority 2: Identify income sources to cover overdraft")
+            recommendations.append("? Priority 1: Stop all non-essential spending immediately")
+            recommendations.append("? Priority 2: Identify income sources to cover overdraft")
         elif expenses > income:
-            recommendations.append("🎯 Priority: Reduce discretionary spending by 20-30%")
-            recommendations.append("📊 Analyze top spending categories and set limits")
+            recommendations.append("? Priority: Reduce discretionary spending by 20-30%")
+            recommendations.append("? Analyze top spending categories and set limits")
         elif balance < 5000:
-            recommendations.append("💰 Build emergency fund to ₹15,000 minimum")
-            recommendations.append("📉 Reduce expenses to save ₹2,000-3,000 monthly")
+            recommendations.append("? Build emergency fund to Rupee 15,000 minimum")
+            recommendations.append("? Reduce expenses to save Rupee 2,000-3,000 monthly")
         else:
-            recommendations.append("✅ Continue current spending habits")
-            recommendations.append("📈 Consider allocating 10-20% to savings/investments")
+            recommendations.append("OK Continue current spending habits")
+            recommendations.append("? Consider allocating 10-20% to savings/investments")
         
-        recommendations.append("📊 Track spending by category weekly")
-        recommendations.append("🎯 Set monthly budget limits")
+        recommendations.append("? Track spending by category weekly")
+        recommendations.append("? Set monthly budget limits")
         
         return {
             "summary": summary,

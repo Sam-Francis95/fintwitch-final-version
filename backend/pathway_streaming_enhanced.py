@@ -4,19 +4,19 @@ FinTwitch ENHANCED Pathway Streaming Engine
 Hackathon-ready real-time financial intelligence with multi-source streaming.
 
 PATHWAY-CENTRIC FEATURES:
-✓ Multi-source stream ingestion (transactions + external signals)
-✓ Advanced streaming transformations (moving averages, velocity, trends)
-✓ Predictive analytics (balance depletion, spending projections)
-✓ Real-time decision assistance (alerts, warnings)
-✓ Multi-source data fusion (user + market + economic signals)
-✓ Anomaly detection and behavioral analysis
-✓ LLM powered by processed analytics (not raw data)
-✓ Streaming status visibility
++ Multi-source stream ingestion (transactions + external signals)
++ Advanced streaming transformations (moving averages, velocity, trends)
++ Predictive analytics (balance depletion, spending projections)
++ Real-time decision assistance (alerts, warnings)
++ Multi-source data fusion (user + market + economic signals)
++ Anomaly detection and behavioral analysis
++ LLM powered by processed analytics (not raw data)
++ Streaming status visibility
 
 Architecture:
-    [User Transactions] ──┐
-    [Market Signals]    ──┤→ Pathway Pipeline → Transformations → Fusion → Analytics → API
-    [Economic Events]   ──┘
+    [User Transactions] --+
+    [Market Signals]    --+-> Pathway Pipeline -> Transformations -> Fusion -> Analytics -> API
+    [Economic Events]   --+
 """
 
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
@@ -38,10 +38,10 @@ try:
     if not hasattr(pw, 'Schema'):
         raise ImportError("Stub pathway detected")
     PATHWAY_AVAILABLE = True
-    print("✅ REAL Pathway streaming engine loaded")
+    print("OK REAL Pathway streaming engine loaded")
 except (ImportError, AttributeError) as e:
-    print(f"⚠️  Real Pathway not available: {e}")
-    print("📦 Install from: https://pathway.com/developers/")
+    print(f"??  Real Pathway not available: {e}")
+    print("? Install from: https://pathway.com/developers/")
     PATHWAY_AVAILABLE = False
 
 # Import LLM service and external stream
@@ -383,7 +383,7 @@ if PATHWAY_AVAILABLE:
                     latest_advanced_analytics["anomaly_detected"] = True
                     latest_advanced_analytics["recent_anomalies"].append({
                         "time": datetime.now().isoformat(),
-                        "description": f"Unusually large spending: ₹{recent_expenses:.2f} in 5 minutes"
+                        "description": f"Unusually large spending: Rupee {recent_expenses:.2f} in 5 minutes"
                     })
                     # Keep only last 5 anomalies
                     latest_advanced_analytics["recent_anomalies"] = latest_advanced_analytics["recent_anomalies"][-5:]
@@ -454,12 +454,12 @@ if PATHWAY_AVAILABLE:
         try:
             pw.run()
         except Exception as e:
-            print(f"❌ Pathway computation error: {e}")
+            print(f"? Pathway computation error: {e}")
             streaming_status["pipeline_health"] = "error"
     
     pathway_thread = threading.Thread(target=run_pathway_computation, daemon=True)
     pathway_thread.start()
-    print("✅ Enhanced Pathway streaming pipeline started")
+    print("OK Enhanced Pathway streaming pipeline started")
     
     # Update active data sources
     streaming_status["active_data_sources"] = ["user_transactions", "external_signals"]
@@ -614,7 +614,7 @@ def check_real_time_alerts():
         critical.append({
             "level": "CRITICAL",
             "title": "Negative Balance Alert",
-            "message": f"Your account is overdrawn by ₹{abs(balance):.2f}",
+            "message": f"Your account is overdrawn by Rupee {abs(balance):.2f}",
             "action": "Stop all non-essential spending immediately"
         })
     
@@ -623,7 +623,7 @@ def check_real_time_alerts():
             "level": "CRITICAL",
             "title": "Balance Depletion Warning",
             "message": f"Current spending will deplete your balance in {days_until_zero} days",
-            "action": "Reduce daily spending to ₹" + str(latest_predictions.get("recommended_daily_budget", 0))
+            "action": "Reduce daily spending to Rupee " + str(latest_predictions.get("recommended_daily_budget", 0))
         })
     
     # WARNING ALERTS
@@ -631,7 +631,7 @@ def check_real_time_alerts():
         warnings.append({
             "level": "WARNING",
             "title": "Low Balance Warning",
-            "message": f"Your balance is critically low: ₹{balance:.2f}",
+            "message": f"Your balance is critically low: Rupee {balance:.2f}",
             "action": "Consider emergency fund replenishment"
         })
     
@@ -639,7 +639,7 @@ def check_real_time_alerts():
         warnings.append({
             "level": "WARNING",
             "title": "Spending Trajectory Alert",
-            "message": f"Spending is accelerating: ₹{velocity:.2f}/minute",
+            "message": f"Spending is accelerating: Rupee {velocity:.2f}/minute",
             "action": "Review recent transactions and identify non-essentials"
         })
     
@@ -647,7 +647,7 @@ def check_real_time_alerts():
         warnings.append({
             "level": "WARNING",
             "title": "Projected Monthly Deficit",
-            "message": f"Projected shortage: ₹{latest_predictions['projected_monthly_deficit']:.2f}",
+            "message": f"Projected shortage: Rupee {latest_predictions['projected_monthly_deficit']:.2f}",
             "action": "Adjust spending plan for remainder of month"
         })
     
@@ -656,7 +656,7 @@ def check_real_time_alerts():
         opportunities.append({
             "level": "OPPORTUNITY",
             "title": "Savings Opportunity",
-            "message": f"Stable spending with healthy balance: ₹{balance:.2f}",
+            "message": f"Stable spending with healthy balance: Rupee {balance:.2f}",
             "action": "Consider moving excess to savings or investments"
         })
     
@@ -701,26 +701,26 @@ def compute_intelligence():
     
     # Apply rules
     if expenses > income and income > 0:
-        alerts.append(f"🚨 OVERSPENDING: Expenses (₹{expenses:.2f}) exceed income (₹{income:.2f})")
+        alerts.append(f"? OVERSPENDING: Expenses (Rupee {expenses:.2f}) exceed income (Rupee {income:.2f})")
         risk_factors['overspending'] = True
-        recommendations.append("🎯 Priority: Reduce discretionary spending by 20-30%")
+        recommendations.append("? Priority: Reduce discretionary spending by 20-30%")
     
     if balance < 0:
-        alerts.append(f"⚠️ NEGATIVE BALANCE: Account overdrawn by ₹{abs(balance):.2f}")
+        alerts.append(f"?? NEGATIVE BALANCE: Account overdrawn by Rupee {abs(balance):.2f}")
         risk_factors['negative_balance'] = True
-        recommendations.append("🚨 Immediate: Stop non-essential spending")
+        recommendations.append("? Immediate: Stop non-essential spending")
     elif balance < 5000:
-        warnings.append(f"💰 Low balance warning: Only ₹{balance:.2f} remaining")
+        warnings.append(f"? Low balance warning: Only Rupee {balance:.2f} remaining")
         risk_factors['low_balance'] = True
-        recommendations.append("💰 Build emergency fund to ₹15,000 minimum")
+        recommendations.append("? Build emergency fund to Rupee 15,000 minimum")
     
     health_score = metrics['financial_health_score']
     if health_score < 30:
-        insights.append("⚠️ Financial health is in critical range")
+        insights.append("?? Financial health is in critical range")
     elif health_score < 60:
-        insights.append("📊 Financial health needs improvement")
+        insights.append("? Financial health needs improvement")
     else:
-        insights.append("✅ Maintaining healthy financial habits")
+        insights.append("OK Maintaining healthy financial habits")
     
     # Risk level
     if balance < 0 or (income > 0 and expenses > income * 2):
@@ -777,19 +777,19 @@ async def generate_llm_insights_async():
         # Add context about advanced analytics
         if context["advanced_analytics"].get("trend") == "rising":
             insights["insights"].append(
-                f"📈 Trend Analysis: Spending is {context['advanced_analytics']['trend']} - "
-                f"your spending velocity is ₹{context['advanced_analytics']['spending_velocity']:.2f}/min"
+                f"? Trend Analysis: Spending is {context['advanced_analytics']['trend']} - "
+                f"your spending velocity is Rupee {context['advanced_analytics']['spending_velocity']:.2f}/min"
             )
         
         if context["predictions"].get("days_until_zero_balance"):
             insights["insights"].append(
-                f"⏰ Projection: At current rate, balance depletes in "
+                f"? Projection: At current rate, balance depletes in "
                 f"{context['predictions']['days_until_zero_balance']} days"
             )
         
         if context["fusion_metrics"].get("overall_financial_risk", 0) > 50:
             insights["insights"].append(
-                f"🌐 Market-Adjusted Risk: {context['fusion_metrics']['overall_financial_risk']:.0f}/100 "
+                f"? Market-Adjusted Risk: {context['fusion_metrics']['overall_financial_risk']:.0f}/100 "
                 f"(including external factors)"
             )
     
@@ -1013,28 +1013,28 @@ def root():
 async def startup_event():
     """Initialize enhanced streaming engine"""
     print("\n" + "="*80)
-    print("🚀 FINTWITCH ENHANCED PATHWAY INTELLIGENCE ENGINE - HACKATHON EDITION")
+    print("? FINTWITCH ENHANCED PATHWAY INTELLIGENCE ENGINE - HACKATHON EDITION")
     print("="*80)
-    print(f"✓ Engine: {'REAL Pathway Streaming' if PATHWAY_AVAILABLE else 'Fallback Mode'}")
+    print(f"+ Engine: {'REAL Pathway Streaming' if PATHWAY_AVAILABLE else 'Fallback Mode'}")
     if PATHWAY_AVAILABLE:
-        print(f"✓ Pathway Version: {pw.__version__}")
-    print(f"✓ LLM Provider: {get_llm_service().provider}")
-    print(f"✓ Multi-source ingestion: ENABLED")
-    print(f"✓ Advanced analytics: ENABLED")
-    print(f"✓ Predictive insights: ENABLED")
-    print("\n📊 Active Data Sources:")
+        print(f"+ Pathway Version: {pw.__version__}")
+    print(f"+ LLM Provider: {get_llm_service().provider}")
+    print(f"+ Multi-source ingestion: ENABLED")
+    print(f"+ Advanced analytics: ENABLED")
+    print(f"+ Predictive insights: ENABLED")
+    print("\n? Active Data Sources:")
     for source in streaming_status["active_data_sources"]:
-        print(f"   • {source}")
-    print("\n🔗 Enhanced Endpoints:")
-    print("  📥 POST /ingest                - Ingest transactions")
-    print("  📊 GET  /metrics               - Core metrics")
-    print("  🧮 GET  /metrics/advanced      - Advanced analytics")
-    print("  🔮 GET  /metrics/predictions   - Predictive insights")
-    print("  🔄 GET  /metrics/fusion        - Multi-source fusion")
-    print("  🌐 GET  /external-signals      - External data state")
-    print("  🚨 GET  /alerts                - Real-time alerts")
-    print("  🤖 GET  /insights/llm          - LLM insights")
-    print("  📈 GET  /status                - Streaming status")
+        print(f"   * {source}")
+    print("\n? Enhanced Endpoints:")
+    print("  ? POST /ingest                - Ingest transactions")
+    print("  ? GET  /metrics               - Core metrics")
+    print("  ? GET  /metrics/advanced      - Advanced analytics")
+    print("  ? GET  /metrics/predictions   - Predictive insights")
+    print("  ? GET  /metrics/fusion        - Multi-source fusion")
+    print("  ? GET  /external-signals      - External data state")
+    print("  ? GET  /alerts                - Real-time alerts")
+    print("  ? GET  /insights/llm          - LLM insights")
+    print("  ? GET  /status                - Streaming status")
     print("="*80)
     
     # Start external stream generator
@@ -1050,7 +1050,7 @@ async def startup_event():
     # Start polling external stream
     asyncio.create_task(poll_external_stream())
     
-    print("\n✅ HACKATHON-READY PATHWAY SYSTEM OPERATIONAL\n")
+    print("\nOK HACKATHON-READY PATHWAY SYSTEM OPERATIONAL\n")
 
 # ==================== RUN ====================
 

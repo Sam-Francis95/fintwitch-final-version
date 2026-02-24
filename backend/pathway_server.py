@@ -159,7 +159,7 @@ async def get_transactions(limit: int = 100) -> Dict[str, Any]:
 
 if __name__ == "__main__":
     print(f"\n{'='*70}")
-    print("🌊 FinTwitch REAL Pathway Streaming API")
+    print("? FinTwitch REAL Pathway Streaming API")
     print(f"{'='*70}")
     print(f"Pathway Mode: {PATHWAY_MODE}")
     print(f"{'='*70}\n")

@@ -59,18 +59,17 @@ const ExternalSignalsPanel = () => {
       <div className="bg-white/5 rounded-lg p-4 mb-4 border border-white/10">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-gray-400">Market Sentiment</p>
-          <span className={`font-bold ${getSentimentColor(signals.market_sentiment)}`}>
-            {getSentimentLabel(signals.market_sentiment)}
+          <span className={`font-bold ${getSentimentColor(signals?.market_sentiment || 0.5)}`}>
+            {getSentimentLabel(signals?.market_sentiment || 0.5)}
           </span>
         </div>
-        
+
         {/* Sentiment Bar */}
         <div className="relative w-full h-3 bg-gray-700 rounded-full overflow-hidden mb-2">
           <div
-            className={`absolute left-0 top-0 h-full transition-all duration-500 ${
-              signals.market_sentiment > 0.5 ? 'bg-green-500' : 'bg-red-500'
-            }`}
-            style={{ width: `${signals.market_sentiment * 100}%` }}
+            className={`absolute left-0 top-0 h-full transition-all duration-500 ${(signals?.market_sentiment || 0.5) > 0.5 ? 'bg-green-500' : 'bg-red-500'
+              }`}
+            style={{ width: `${(signals?.market_sentiment || 0.5) * 100}%` }}
           />
         </div>
         <div className="flex justify-between text-xs text-gray-500">
@@ -88,12 +87,11 @@ const ExternalSignalsPanel = () => {
             <p className="text-xs text-gray-400">Volatility</p>
           </div>
           <p className="text-2xl font-bold text-white">
-            {(signals.market_volatility * 100).toFixed(0)}%
+            {(signals?.market_volatility || 0 * 100).toFixed(0)}%
           </p>
-          <p className={`text-xs mt-1 ${
-            signals.market_volatility > 0.5 ? 'text-red-400' : 'text-green-400'
-          }`}>
-            {signals.market_volatility > 0.5 ? 'High' : 'Moderate'}
+          <p className={`text-xs mt-1 ${signals.market_volatility > 0.5 ? 'text-red-400' : 'text-green-400'
+            }`}>
+            {(signals?.market_volatility || 0) > 0.5 ? 'High' : 'Moderate'}
           </p>
         </div>
 
@@ -103,12 +101,11 @@ const ExternalSignalsPanel = () => {
             <p className="text-xs text-gray-400">Interest Rate</p>
           </div>
           <p className="text-2xl font-bold text-white">
-            {signals.interest_rate?.toFixed(2)}%
+            {signals?.interest_rate?.toFixed(2) || '0.00'}%
           </p>
-          <p className={`text-xs mt-1 ${
-            signals.interest_rate > 7 ? 'text-red-400' : 'text-green-400'
-          }`}>
-            {signals.interest_rate > 7 ? 'High' : 'Favorable'}
+          <p className={`text-xs mt-1 ${signals.interest_rate > 7 ? 'text-red-400' : 'text-green-400'
+            }`}>
+            {(signals?.interest_rate || 0) > 7 ? 'High' : 'Favorable'}
           </p>
         </div>
 
@@ -119,17 +116,16 @@ const ExternalSignalsPanel = () => {
               <p className="text-xs text-gray-400">Inflation Rate</p>
             </div>
             <p className="text-2xl font-bold text-white">
-              {signals.inflation_rate?.toFixed(1)}%
+              {signals?.inflation_rate?.toFixed(1) || '0.0'}%
             </p>
           </div>
           <div className="mt-2">
             <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
               <div
-                className={`h-full transition-all ${
-                  signals.inflation_rate > 6 ? 'bg-red-500' : 
-                  signals.inflation_rate > 4 ? 'bg-yellow-500' : 'bg-green-500'
-                }`}
-                style={{ width: `${Math.min(signals.inflation_rate * 10, 100)}%` }}
+                className={`h-full transition-all ${(signals?.inflation_rate || 0) > 6 ? 'bg-red-500' :
+                    (signals?.inflation_rate || 0) > 4 ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}
+                style={{ width: `${Math.min((signals?.inflation_rate || 0) * 10, 100)}%` }}
               />
             </div>
           </div>
@@ -137,14 +133,13 @@ const ExternalSignalsPanel = () => {
       </div>
 
       {/* Impact on Spending */}
-      <div className={`rounded-lg p-4 border ${
-        signals.impact_on_spending < -0.2 ? 'bg-red-500/10 border-red-500/30' :
-        signals.impact_on_spending > 0.2 ? 'bg-green-500/10 border-green-500/30' :
-        'bg-blue-500/10 border-blue-500/30'
-      }`}>
+      <div className={`rounded-lg p-4 border ${signals.impact_on_spending < -0.2 ? 'bg-red-500/10 border-red-500/30' :
+          signals.impact_on_spending > 0.2 ? 'bg-green-500/10 border-green-500/30' :
+            'bg-blue-500/10 border-blue-500/30'
+        }`}>
         <p className="text-sm text-gray-300 mb-2">Market Impact on Your Spending</p>
         <div className="flex items-center gap-3">
-          {signals.impact_on_spending < 0 ? (
+          {(signals?.impact_on_spending || 0) < 0 ? (
             <>
               <TrendingDown className="w-6 h-6 text-red-400" />
               <div>
@@ -152,7 +147,7 @@ const ExternalSignalsPanel = () => {
                 <p className="text-xs text-gray-400">Market conditions suggest cautious spending</p>
               </div>
             </>
-          ) : signals.impact_on_spending > 0 ? (
+          ) : (signals?.impact_on_spending || 0) > 0 ? (
             <>
               <TrendingUp className="w-6 h-6 text-green-400" />
               <div>

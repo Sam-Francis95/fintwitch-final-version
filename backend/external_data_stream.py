@@ -171,7 +171,7 @@ class ExternalDataStreamGenerator:
     
     async def run_continuous_stream(self, interval_seconds: float = 15.0):
         """Run continuous data stream generation"""
-        print(f"🌐 Starting external data stream generator...")
+        print(f"? Starting external data stream generator...")
         print(f"   Stream file: {self.stream_file}")
         print(f"   Interval: {interval_seconds}s")
         
@@ -197,16 +197,16 @@ class ExternalDataStreamGenerator:
                 self.append_event(event)
                 event_count += 1
                 
-                print(f"  ✓ [{event_count}] {event['category'].upper()}: {event['description'][:60]}...")
+                print(f"  + [{event_count}] {event['category'].upper()}: {event['description'][:60]}...")
                 
                 # Wait for next event
                 await asyncio.sleep(interval_seconds)
         
         except asyncio.CancelledError:
-            print(f"🛑 External data stream stopped. Total events generated: {event_count}")
+            print(f"? External data stream stopped. Total events generated: {event_count}")
             self.is_running = False
         except Exception as e:
-            print(f"❌ Error in external stream: {e}")
+            print(f"? Error in external stream: {e}")
             self.is_running = False
     
     def stop(self):
@@ -225,5 +225,5 @@ if __name__ == "__main__":
     try:
         asyncio.run(generator.run_continuous_stream(interval_seconds=10.0))
     except KeyboardInterrupt:
-        print("\n\n🛑 Stream stopped by user")
+        print("\n\n? Stream stopped by user")
         generator.stop()

@@ -313,13 +313,13 @@ class LLMMock:
         risk = metrics.get('risk', 'LOW')
         
         if balance < 0:
-            return f"⚠️ Your account is overdrawn by ₹{abs(balance):.2f}. You've spent ₹{expenses:.2f} but only earned ₹{income:.2f}. Immediate action needed to restore financial stability."
+            return f"?? Your account is overdrawn by Rupee {abs(balance):.2f}. You've spent Rupee {expenses:.2f} but only earned Rupee {income:.2f}. Immediate action needed to restore financial stability."
         elif risk == "HIGH":
-            return f"⚠️ High financial risk detected. Your expenses (₹{expenses:.2f}) are approaching or exceeding your income (₹{income:.2f}). Current balance: ₹{balance:.2f}. Consider reducing discretionary spending."
+            return f"?? High financial risk detected. Your expenses (Rupee {expenses:.2f}) are approaching or exceeding your income (Rupee {income:.2f}). Current balance: Rupee {balance:.2f}. Consider reducing discretionary spending."
         elif balance < 1000:
-            return f"💡 Low balance alert. You have ₹{balance:.2f} remaining. With income of ₹{income:.2f} and expenses of ₹{expenses:.2f}, maintain cautious spending."
+            return f"? Low balance alert. You have Rupee {balance:.2f} remaining. With income of Rupee {income:.2f} and expenses of Rupee {expenses:.2f}, maintain cautious spending."
         else:
-            return f"✅ Financial health looks stable. Balance: ₹{balance:.2f} | Income: ₹{income:.2f} | Expenses: ₹{expenses:.2f}. Keep maintaining this positive trend!"
+            return f"OK Financial health looks stable. Balance: Rupee {balance:.2f} | Income: Rupee {income:.2f} | Expenses: Rupee {expenses:.2f}. Keep maintaining this positive trend!"
     
     @staticmethod
     def explain_risk(metrics: Dict[str, Any]) -> str:
@@ -343,20 +343,20 @@ class LLMMock:
         expenses = metrics.get('total_expenses', 0)
         
         if metrics.get('risk') == 'HIGH':
-            recommendations.append("🎯 Priority: Reduce discretionary spending by 20%")
-            recommendations.append("💰 Goal: Increase income through side projects or overtime")
+            recommendations.append("? Priority: Reduce discretionary spending by 20%")
+            recommendations.append("? Goal: Increase income through side projects or overtime")
         
         if balance < 5000:
-            recommendations.append("🚨 Build emergency fund: Aim for ₹10,000 minimum reserve")
+            recommendations.append("? Build emergency fund: Aim for Rupee 10,000 minimum reserve")
         
         if 'overspending' in str(alerts).lower():
-            recommendations.append("📊 Review spending patterns and cut non-essential expenses")
+            recommendations.append("? Review spending patterns and cut non-essential expenses")
         
         if expenses > 0:
-            recommendations.append("📈 Track spending by category to identify optimization areas")
+            recommendations.append("? Track spending by category to identify optimization areas")
         
         if not recommendations:
-            recommendations.append("✅ Continue current financial habits - you're doing great!")
+            recommendations.append("OK Continue current financial habits - you're doing great!")
         
         return recommendations[:3]  # Top 3 recommendations
 

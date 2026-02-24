@@ -27,16 +27,16 @@ try:
     if not hasattr(pw, 'Schema'):
         raise ImportError("Stub pathway package detected")
     USING_MOCK = False
-    print("✓ Using REAL Pathway streaming engine")
+    print("+ Using REAL Pathway streaming engine")
 except (ImportError, AttributeError):
     try:
         from pathway_mock_advanced import pw
         USING_MOCK = True
-        print("⚠ Using ADVANCED mock Pathway (full streaming capabilities)")
+        print("? Using ADVANCED mock Pathway (full streaming capabilities)")
     except ImportError:
         from pathway_mock import pw
         USING_MOCK = True
-        print("⚠ Using basic mock Pathway")
+        print("? Using basic mock Pathway")
 
 # ==================== FASTAPI SETUP ====================
 
@@ -106,12 +106,12 @@ def initialize_pathway_intelligence_engine():
     global metrics_stream, category_metrics, windowed_metrics, intelligence_stream
     
     print("\n" + "="*70)
-    print("🌊 PATHWAY REAL-TIME FINANCIAL INTELLIGENCE ENGINE")
+    print("? PATHWAY REAL-TIME FINANCIAL INTELLIGENCE ENGINE")
     print("="*70)
     print("Initializing streaming components...")
     
     # ========== 1. CREATE INPUT STREAM ==========
-    print("📥 [1/6] Creating transaction input stream...")
+    print("? [1/6] Creating transaction input stream...")
     
     if USING_MOCK:
         from pathway_mock_advanced import ConnectorSubject
@@ -132,20 +132,20 @@ def initialize_pathway_intelligence_engine():
         )
         transactions_table = transaction_connector.to_table()
     
-    print("   ✓ Input stream ready")
+    print("   + Input stream ready")
     
     # ========== 2. STREAMING TRANSFORMATIONS ==========
-    print("⚙️  [2/6] Applying streaming transformations...")
+    print("??  [2/6] Applying streaming transformations...")
     
     # Add computed column: signed amount (income=positive, expense=negative)
     enriched_transactions = transactions_table.with_columns(
         signed_amount=lambda row: row['amount'] if row['type'] == 'income' else -row['amount']
     )
     
-    print("   ✓ Signed amounts computed")
+    print("   + Signed amounts computed")
     
     # ========== 3. REAL-TIME AGGREGATIONS ==========
-    print("📊 [3/6] Setting up real-time aggregations...")
+    print("? [3/6] Setting up real-time aggregations...")
     
     # Core metrics: running totals
     metrics_stream = enriched_transactions.reduce(
@@ -158,7 +158,7 @@ def initialize_pathway_intelligence_engine():
         avg_transaction=lambda data: sum(r.get('amount', 0) for r in data) / len(data) if data else 0
     )
     
-    print("   ✓ Core metrics stream active")
+    print("   + Core metrics stream active")
     
     # Category-wise breakdown
     category_metrics = enriched_transactions.groupby('category').reduce(
@@ -168,10 +168,10 @@ def initialize_pathway_intelligence_engine():
         count=pw.reducers.count()
     )
     
-    print("   ✓ Category metrics stream active")
+    print("   + Category metrics stream active")
     
     # ========== 4. TIME-WINDOWED ANALYTICS ==========
-    print("⏰ [4/6] Configuring time-windowed analysis...")
+    print("? [4/6] Configuring time-windowed analysis...")
     
     # Recent spending (last 5 minutes)
     if hasattr(enriched_transactions, 'window_by'):
@@ -181,13 +181,13 @@ def initialize_pathway_intelligence_engine():
             recent_count=pw.reducers.count(),
             event_rate=lambda data: len(data) / 5.0  # events per minute
         )
-        print("   ✓ Time windows configured (5-minute rolling)")
+        print("   + Time windows configured (5-minute rolling)")
     else:
         windowed_metrics = None
-        print("   ⚠ Time windows not available in this Pathway version")
+        print("   ? Time windows not available in this Pathway version")
     
     # ========== 5. FINANCIAL INTELLIGENCE LAYER ==========
-    print("🧠 [5/6] Activating financial intelligence layer...")
+    print("? [5/6] Activating financial intelligence layer...")
     
     # This will be computed on-demand with rule-based logic
     intelligence_stream = {
@@ -197,25 +197,25 @@ def initialize_pathway_intelligence_engine():
         'behavioral_pattern_analysis': True
     }
     
-    print("   ✓ Intelligence rules active")
+    print("   + Intelligence rules active")
     
     # ========== 6. LLM INTEGRATION ==========
-    print("🤖 [6/6] Initializing LLM integration...")
+    print("? [6/6] Initializing LLM integration...")
     
     if hasattr(pw, 'llm'):
-        print("   ✓ LLM xPack ready for natural language insights")
+        print("   + LLM xPack ready for natural language insights")
     else:
-        print("   ⚠ LLM operating in mock mode")
+        print("   ? LLM operating in mock mode")
     
-    print("\n✅ PATHWAY ENGINE FULLY OPERATIONAL")
+    print("\nOK PATHWAY ENGINE FULLY OPERATIONAL")
     print("="*70)
     print("Streaming Features:")
-    print("  • Real-time transaction ingestion")
-    print("  • Continuous metric computation")
-    print("  • Category-wise aggregations")
-    print("  • Time-windowed analysis (5-min rolling)")
-    print("  • Financial intelligence & alerts")
-    print("  • LLM-powered insights")
+    print("  * Real-time transaction ingestion")
+    print("  * Continuous metric computation")
+    print("  * Category-wise aggregations")
+    print("  * Time-windowed analysis (5-min rolling)")
+    print("  * Financial intelligence & alerts")
+    print("  * LLM-powered insights")
     print("="*70 + "\n")
     
     return True
@@ -368,9 +368,9 @@ def compute_windowed_analytics(window_minutes: int = 5) -> Dict[str, Any]:
     if recent_count == 0:
         summary = f"No activity in last {window_minutes} minutes"
     elif recent_income > recent_expenses:
-        summary = f"Positive cash flow: +₹{recent_income - recent_expenses:.2f}"
+        summary = f"Positive cash flow: +Rupee {recent_income - recent_expenses:.2f}"
     elif recent_expenses > recent_income:
-        summary = f"Net spending: -₹{recent_expenses - recent_income:.2f}"
+        summary = f"Net spending: -Rupee {recent_expenses - recent_income:.2f}"
     else:
         summary = "Balanced activity"
     
@@ -396,50 +396,50 @@ def compute_financial_intelligence() -> Dict[str, Any]:
     
     # 1. Overspending detection
     if metrics['total_expenses'] > metrics['total_income']:
-        alerts.append(f"🚨 OVERSPENDING: Expenses (₹{metrics['total_expenses']}) exceed income (₹{metrics['total_income']})")
+        alerts.append(f"? OVERSPENDING: Expenses (Rupee {metrics['total_expenses']}) exceed income (Rupee {metrics['total_income']})")
         risk_factors['overspending'] = True
     
     # 2. Balance decline monitoring
     if metrics['balance'] < 0:
-        alerts.append(f"⚠️ NEGATIVE BALANCE: Account is overdrawn by ₹{abs(metrics['balance'])}")
+        alerts.append(f"?? NEGATIVE BALANCE: Account is overdrawn by Rupee {abs(metrics['balance'])}")
         risk_factors['negative_balance'] = True
     elif metrics['balance'] < 1000:
-        warnings.append(f"💰 Low balance warning: Only ₹{metrics['balance']} remaining")
+        warnings.append(f"? Low balance warning: Only Rupee {metrics['balance']} remaining")
         risk_factors['low_balance'] = True
     
     # 3. Emergency fund risk
     if metrics['balance'] < 5000 and metrics['balance'] > 0:
-        warnings.append("🏦 Emergency fund below recommended minimum (₹5,000)")
+        warnings.append("? Emergency fund below recommended minimum (Rupee 5,000)")
         risk_factors['insufficient_emergency_fund'] = True
     
     # 4. Rapid spending detection (windowed analysis)
     if windowed['spending_rate_per_minute'] > 100:
-        alerts.append(f"📈 RAPID SPENDING: ₹{windowed['spending_rate_per_minute']:.2f}/minute in last {windowed['window_minutes']} minutes")
+        alerts.append(f"? RAPID SPENDING: Rupee {windowed['spending_rate_per_minute']:.2f}/minute in last {windowed['window_minutes']} minutes")
         risk_factors['rapid_spending'] = True
     
     # 5. Category-based insights
     if categories:
         top_category = categories[0]
         if top_category['total_expenses'] > metrics['total_income'] * 0.3:
-            insights.append(f"📊 '{top_category['category']}' represents {top_category['total_expenses'] / metrics['total_expenses'] * 100:.1f}% of spending")
+            insights.append(f"? '{top_category['category']}' represents {top_category['total_expenses'] / metrics['total_expenses'] * 100:.1f}% of spending")
     
     # 6. Risk level insights
     if metrics['risk_level'] == 'CRITICAL':
-        insights.append("🔴 Financial situation requires immediate attention")
+        insights.append("? Financial situation requires immediate attention")
     elif metrics['risk_level'] == 'HIGH':
-        insights.append("🟠 Consider reducing discretionary spending")
+        insights.append("? Consider reducing discretionary spending")
     elif metrics['risk_level'] == 'LOW':
-        insights.append("🟢 Financial health is stable - maintain current habits")
+        insights.append("? Financial health is stable - maintain current habits")
     
     # 7. Behavioral patterns
     if metrics['transaction_count'] > 20:
-        insights.append(f"📈 High transaction frequency: {metrics['transaction_count']} transactions recorded")
+        insights.append(f"? High transaction frequency: {metrics['transaction_count']} transactions recorded")
     
     # 8. Financial health score
     if metrics['financial_health_score'] < 40:
-        warnings.append(f"⚠️ Health score is low ({metrics['financial_health_score']}/100)")
+        warnings.append(f"?? Health score is low ({metrics['financial_health_score']}/100)")
     elif metrics['financial_health_score'] > 80:
-        insights.append(f"✅ Excellent financial health ({metrics['financial_health_score']}/100)")
+        insights.append(f"OK Excellent financial health ({metrics['financial_health_score']}/100)")
     
     # Generate recommendations using LLM mock if available
     if hasattr(pw, 'llm'):
@@ -474,7 +474,7 @@ def generate_llm_insights() -> Dict[str, Any]:
         confidence = 0.95
     else:
         # Fallback basic insights
-        summary = f"Balance: ₹{metrics['balance']}, Risk: {metrics['risk_level']}"
+        summary = f"Balance: Rupee {metrics['balance']}, Risk: {metrics['risk_level']}"
         risk_explanation = "Risk assessment based on income vs expenses ratio"
         recommendations = intelligence['recommendations']
         confidence = 0.85
@@ -660,18 +660,18 @@ async def root():
 
 if __name__ == "__main__":
     print("\n" + "="*70)
-    print("🚀 STARTING PATHWAY FINANCIAL INTELLIGENCE ENGINE")
+    print("? STARTING PATHWAY FINANCIAL INTELLIGENCE ENGINE")
     print("="*70)
     print(f"Engine Type: {'Advanced Mock' if USING_MOCK else 'Real Pathway'}")
     print("Port: 8000")
     print("\nEndpoints:")
-    print("  📥 POST http://localhost:8000/ingest       - Ingest transactions")
-    print("  📊 GET  http://localhost:8000/metrics      - Core metrics")
-    print("  📂 GET  http://localhost:8000/metrics/categories - Category breakdown")
-    print("  ⏰ GET  http://localhost:8000/metrics/windowed?window_minutes=5 - Time windows")
-    print("  🧠 GET  http://localhost:8000/intelligence - Financial intelligence")
-    print("  🤖 GET  http://localhost:8000/insights/llm - LLM insights")
-    print("  📖 GET  http://localhost:8000/docs        - API documentation")
+    print("  ? POST http://localhost:8000/ingest       - Ingest transactions")
+    print("  ? GET  http://localhost:8000/metrics      - Core metrics")
+    print("  ? GET  http://localhost:8000/metrics/categories - Category breakdown")
+    print("  ? GET  http://localhost:8000/metrics/windowed?window_minutes=5 - Time windows")
+    print("  ? GET  http://localhost:8000/intelligence - Financial intelligence")
+    print("  ? GET  http://localhost:8000/insights/llm - LLM insights")
+    print("  ? GET  http://localhost:8000/docs        - API documentation")
     print("="*70 + "\n")
     
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

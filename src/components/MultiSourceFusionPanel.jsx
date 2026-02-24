@@ -87,24 +87,24 @@ const MultiSourceFusionPanel = () => {
         <p className="text-sm text-gray-400 mb-3 text-center">Overall Financial Risk</p>
         <div className="flex items-center justify-center gap-4 mb-3">
           <div className="text-center">
-            <p className={`text-5xl font-bold ${getRiskColor(fusion.overall_financial_risk)}`}>
-              {fusion.overall_financial_risk?.toFixed(0)}
+            <p className={`text-5xl font-bold ${getRiskColor(fusion?.overall_financial_risk || 0)}`}>
+              {(fusion?.overall_financial_risk || 0)?.toFixed(0)}
             </p>
             <p className="text-gray-400 text-sm">/ 100</p>
           </div>
         </div>
-        
+
         {/* Risk Bar */}
         <div className="relative w-full h-4 bg-gray-700 rounded-full overflow-hidden mb-2">
           <div
-            className={`absolute left-0 top-0 h-full transition-all duration-500 ${getRiskBgColor(fusion.overall_financial_risk)}`}
-            style={{ width: `${fusion.overall_financial_risk}%` }}
+            className={`absolute left-0 top-0 h-full transition-all duration-500 ${getRiskBgColor(fusion?.overall_financial_risk || 0)}`}
+            style={{ width: `${fusion?.overall_financial_risk || 0}%` }}
           />
         </div>
-        
+
         <div className="text-center">
-          <span className={`px-4 py-1 rounded-full text-sm font-bold ${getRiskColor(fusion.overall_financial_risk)}`}>
-            {getRiskLabel(fusion.overall_financial_risk)} RISK
+          <span className={`px-4 py-1 rounded-full text-sm font-bold ${getRiskColor(fusion?.overall_financial_risk || 0)}`}>
+            {getRiskLabel(fusion?.overall_financial_risk || 0)} RISK
           </span>
         </div>
       </div>
@@ -118,7 +118,7 @@ const MultiSourceFusionPanel = () => {
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold text-purple-300">
-              {fusion.market_adjusted_health?.toFixed(0)}
+              {fusion?.market_adjusted_health?.toFixed(0) || '0'}
             </p>
             <p className="text-xs text-gray-400">/ 100</p>
           </div>
@@ -139,13 +139,13 @@ const MultiSourceFusionPanel = () => {
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-400">Market Risk Multiplier</span>
               <span className="text-sm font-bold text-orange-400">
-                {fusion.risk_breakdown.market_risk_multiplier?.toFixed(2)}x
+                {fusion.risk_breakdown?.market_risk_multiplier?.toFixed(2) || '1.00'}x
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-gray-400">Economic Factors Risk</span>
-              <span className={`text-sm font-bold ${getRiskColor(fusion.risk_breakdown.economic_factors_risk)}`}>
-                +{fusion.risk_breakdown.economic_factors_risk?.toFixed(0)}
+              <span className={`text-sm font-bold ${getRiskColor(fusion.risk_breakdown?.economic_factors_risk || 0)}`}>
+                +{fusion.risk_breakdown?.economic_factors_risk?.toFixed(0) || '0'}
               </span>
             </div>
           </div>
@@ -153,13 +153,12 @@ const MultiSourceFusionPanel = () => {
       )}
 
       {/* Recommended Action */}
-      <div className={`rounded-lg p-4 border ${
-        fusion.recommended_action === 'urgent_action_needed' 
-          ? 'bg-red-500/20 border-red-500' 
+      <div className={`rounded-lg p-4 border ${fusion.recommended_action === 'urgent_action_needed'
+          ? 'bg-red-500/20 border-red-500'
           : fusion.recommended_action === 'reduce_spending'
-          ? 'bg-orange-500/20 border-orange-500'
-          : 'bg-blue-500/20 border-blue-500'
-      }`}>
+            ? 'bg-orange-500/20 border-orange-500'
+            : 'bg-blue-500/20 border-blue-500'
+        }`}>
         <div className="flex items-start gap-3">
           {getActionIcon(fusion.recommended_action)}
           <div className="flex-1">

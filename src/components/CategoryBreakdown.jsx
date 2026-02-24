@@ -107,10 +107,10 @@ const CategoryBreakdown = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 formatter={(value) => `₹${value.toFixed(2)}`}
-                contentStyle={{ 
-                  backgroundColor: '#1F2937', 
+                contentStyle={{
+                  backgroundColor: '#1F2937',
                   border: '1px solid #6366F1',
                   borderRadius: '0.5rem'
                 }}
@@ -147,21 +147,20 @@ const CategoryBreakdown = () => {
                   {cat.category}
                 </span>
               </div>
-              <span className={`text-sm font-medium ${
-                cat.net >= 0 ? 'text-green-400' : 'text-red-400'
-              }`}>
-                ₹{cat.net.toFixed(2)}
+              <span className={`text-sm font-medium ${(cat?.net || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                }`}>
+                ₹{(cat?.net || 0).toFixed(2)}
               </span>
             </div>
-            
+
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="flex items-center space-x-1">
                 <TrendingUp className="w-3 h-3 text-green-400" />
-                <span className="text-green-300">₹{cat.total_income.toFixed(2)}</span>
+                <span className="text-green-300">₹{(cat?.total_income || 0).toFixed(2)}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <TrendingDown className="w-3 h-3 text-red-400" />
-                <span className="text-red-300">₹{cat.total_expenses.toFixed(2)}</span>
+                <span className="text-red-300">₹{(cat?.total_expenses || 0).toFixed(2)}</span>
               </div>
               <div className="text-gray-400 text-right">
                 {cat.transaction_count} txns
