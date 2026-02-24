@@ -24,7 +24,7 @@ export default function PathwayMetrics() {
             const response = await fetch('http://localhost:8000/metrics');
             if (response.ok) {
                 const data = await response.json();
-                setMetrics(data);
+                setMetrics(prev => ({ ...prev, ...data }));
                 setIsConnected(true);
                 setIsLoading(false);
             } else {
@@ -149,9 +149,9 @@ export default function PathwayMetrics() {
                         <div>
                             <div className="text-sm text-slate-400">Net Cash Flow</div>
                             <div className={`text-2xl font-bold ${
-                                metrics.net_cash_flow >= 0 ? 'text-green-400' : 'text-red-400'
+                                (metrics.net_cash_flow ?? 0) >= 0 ? 'text-green-400' : 'text-red-400'
                             }`}>
-                                ₹{metrics.net_cash_flow.toLocaleString()}
+                                ₹{(metrics.net_cash_flow ?? 0).toLocaleString()}
                             </div>
                         </div>
                     </div>

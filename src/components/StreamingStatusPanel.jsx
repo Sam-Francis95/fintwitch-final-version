@@ -56,12 +56,14 @@ const StreamingStatusPanel = () => {
   const pipelineHealthColor = {
     'operational': 'text-green-400',
     'warning': 'text-yellow-400',
+    'fallback': 'text-yellow-400',
     'error': 'text-red-400'
   }[status?.pipeline_health || 'operational'] || 'text-gray-400';
 
   const pipelineHealthBg = {
     'operational': 'bg-green-500/20 border-green-500/50',
     'warning': 'bg-yellow-500/20 border-yellow-500/50',
+    'fallback': 'bg-yellow-500/20 border-yellow-500/50',
     'error': 'bg-red-500/20 border-red-500/50'
   }[status?.pipeline_health || 'operational'] || 'bg-gray-500/20 border-gray-500/50';
 

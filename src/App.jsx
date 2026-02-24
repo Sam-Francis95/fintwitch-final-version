@@ -2,6 +2,22 @@ import React from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { UserProvider, useUser } from "./context/UserContext";
 import { ToastsProvider } from "./context/ToastContext";
+
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(e) { return { error: e }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div style={{color:'#ff6b6b',padding:'2rem',fontFamily:'monospace',background:'#0a0014',minHeight:'100vh'}}>
+          <h2>⚠️ App crashed — check this error:</h2>
+          <pre style={{whiteSpace:'pre-wrap',wordBreak:'break-all'}}>{this.state.error?.message}{'\n\n'}{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { AnimatePresence, motion } from "framer-motion";
 
 
@@ -61,6 +77,7 @@ export default function App() {
   const location = useLocation();
 
   return (
+    <ErrorBoundary>
     <ToastsProvider>
       <UserProvider>
         <GameStoreInitializer />
@@ -103,5 +120,6 @@ export default function App() {
         </AnimatePresence>
       </UserProvider>
     </ToastsProvider>
+    </ErrorBoundary>
   );
 }

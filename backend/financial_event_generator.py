@@ -25,26 +25,32 @@ EXPENSE_BLOCK_THRESHOLD = 100     # Below this: No expenses generated
 RECOVERY_THRESHOLD = 800          # Must reach this to resume normal expenses
 LOW_BALANCE_THRESHOLD = 500       # Boost income generation
 RECOVERY_BALANCE_THRESHOLD = 1500 # Return to normal mode
+HIGH_BALANCE_THRESHOLD = 125000   # Above this: Increase expenses significantly
 
 def generate_event(user_balance=None):
     """Generates a random financial event with adaptive economy logic."""
     # Adaptive probability based on user's balance
-    if user_balance is not None and user_balance <= EXPENSE_BLOCK_THRESHOLD:
+    if user_balance is not None and user_balance >= HIGH_BALANCE_THRESHOLD:
+        # HIGH BALANCE MODE: Increase expenses dramatically
+        income_probability = 0.10  # 10% Income, 90% Expense
+        expense_multiplier = 2.5   # 2.5x expense amounts
+        print(f"💰 HIGH BALANCE MODE (Balance: ₹{user_balance:.2f}) - Increased expenses!")
+    elif user_balance is not None and user_balance <= EXPENSE_BLOCK_THRESHOLD:
         # CRITICAL: 100% Income, 0% Expense (complete recovery mode)
         # Expenses only resume after balance reaches RECOVERY_THRESHOLD
         income_probability = 1.0
         expense_multiplier = 0.0
-        print(f"? RECOVERY MODE (Balance: Rupee {user_balance:.2f}) - INCOME ONLY until Rupee {RECOVERY_THRESHOLD}!")
+        print(f"🚨 RECOVERY MODE (Balance: ₹{user_balance:.2f}) - INCOME ONLY until ₹{RECOVERY_THRESHOLD}!")
     elif user_balance is not None and user_balance < LOW_BALANCE_THRESHOLD:
         # Low balance: 80% Income, 20% Expense (help user recover)
         income_probability = 0.80
         expense_multiplier = 0.4  # Reduce expense amounts significantly
-        print(f"??  LOW BALANCE MODE ({user_balance}) - Boosting income...")
+        print(f"⚠️  LOW BALANCE MODE ({user_balance}) - Boosting income...")
     elif user_balance is not None and user_balance < RECOVERY_BALANCE_THRESHOLD:
         # Recovery mode: 50% Income, 50% Expense (balanced)
         income_probability = 0.50
         expense_multiplier = 0.7
-        print(f"? RECOVERY MODE ({user_balance}) - Balanced generation...")
+        print(f"📈 RECOVERY MODE ({user_balance}) - Balanced generation...")
     else:
         # Normal mode: 20% Income, 80% Expense (challenge player)
         income_probability = 0.20
@@ -97,14 +103,14 @@ def forward_to_pathway(event):
         
         response = requests.post(PATHWAY_INGEST_URL, json=pathway_event, timeout=1)
         if response.status_code == 200:
-            print(f"  + Forwarded to Pathway")
+            print(f"  ✓ Forwarded to Pathway")
         else:
-            print(f"  ? Pathway ingestion failed: {response.status_code}")
+            print(f"  ⚠ Pathway ingestion failed: {response.status_code}")
     except requests.exceptions.RequestException as e:
         # Fail silently - Pathway might not be running
-        print(f"  ? Pathway unavailable: {str(e)[:50]}")
+        print(f"  ⚠ Pathway unavailable: {str(e)[:50]}")
     except Exception as e:
-        print(f"  ? Error forwarding to Pathway: {str(e)[:50]}")
+        print(f"  ⚠ Error forwarding to Pathway: {str(e)[:50]}")
 
 def print_event(event):
     """Pretty prints the event details."""
