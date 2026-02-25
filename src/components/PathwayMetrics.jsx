@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle } from 'lucide-react';
+import { UserContext } from '../context/UserContext';
 
 /**
  * PathwayMetrics Component
  * Displays real-time financial metrics computed by Pathway streaming engine
  */
 export default function PathwayMetrics() {
+    const { user } = useContext(UserContext);
     const [metrics, setMetrics] = useState({
         balance: 0,
         total_income: 0,
@@ -97,7 +99,7 @@ export default function PathwayMetrics() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <MetricCard
                     label="Current Balance"
-                    value={metrics.balance}
+                    value={user?.balance ?? 0}
                     icon={TrendingUp}
                     color="from-blue-600 to-cyan-600"
                     prefix="₹"
@@ -111,7 +113,7 @@ export default function PathwayMetrics() {
                 />
                 <MetricCard
                     label="Total Expenses"
-                    value={metrics.total_expenses}
+                    value={Math.abs(metrics.total_expenses ?? 0)}
                     icon={TrendingDown}
                     color="from-red-600 to-rose-600"
                     prefix="₹"
@@ -156,7 +158,7 @@ export default function PathwayMetrics() {
                         </div>
                     </div>
                     <div className="mt-3 text-xs text-slate-400">
-                        {metrics.transaction_count} transactions processed
+                        {metrics.transaction_count} transactions processed • net of ingested events
                     </div>
                 </div>
             </div>

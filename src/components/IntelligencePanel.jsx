@@ -71,18 +71,19 @@ const IntelligencePanel = () => {
     <div className="bg-gray-800 rounded-lg p-6 border border-purple-500/30">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <Activity className="w-6 h-6 text-purple-400" />
-          <h3 className="text-xl font-bold text-purple-400">Financial Intelligence</h3>
-          <span className="px-2 py-1 bg-purple-500/20 rounded text-xs text-purple-300">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+        <div className="flex items-center gap-2 min-w-0">
+          <Activity className="w-6 h-6 text-purple-400 flex-shrink-0" />
+          <h3 className="text-xl font-bold text-purple-400 whitespace-nowrap">Financial Intelligence</h3>
+          <span className="px-2 py-1 bg-purple-500/20 rounded text-xs text-purple-300 whitespace-nowrap flex-shrink-0">
             Real-Time
           </span>
         </div>
 
         {/* Risk Indicator */}
-        <div className={`flex items-center space-x-2 px-3 py-1 rounded ${getRiskBg(intelligence?.risk_level || 'LOW')}`}>
-          <Shield className={`w-4 h-4 ${getRiskColor(intelligence?.risk_level || 'LOW')}`} />
-          <span className={`font-semibold ${getRiskColor(intelligence?.risk_level || 'LOW')}`}>
+        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded flex-shrink-0 ${getRiskBg(intelligence?.risk_level || 'LOW')}`}>
+          <Shield className={`w-4 h-4 flex-shrink-0 ${getRiskColor(intelligence?.risk_level || 'LOW')}`} />
+          <span className={`font-semibold whitespace-nowrap text-sm ${getRiskColor(intelligence?.risk_level || 'LOW')}`}>
             {intelligence?.risk_level || 'LOW'}
           </span>
         </div>
@@ -92,8 +93,10 @@ const IntelligencePanel = () => {
       <div className="mb-6 p-4 bg-gray-700/50 rounded-lg">
         <div className="flex items-center justify-between mb-2">
           <span className="text-gray-300 font-medium">Financial Health Score</span>
-          <span className="text-2xl font-bold text-purple-400">
-            {intelligence?.financial_health_score || 0}/100
+          <span className="text-2xl font-bold text-purple-400 tabular-nums">
+            {typeof intelligence?.financial_health_score === 'number'
+              ? parseFloat(intelligence.financial_health_score.toFixed(1))
+              : 0}/100
           </span>
         </div>
         <div className="w-full bg-gray-600 rounded-full h-2">
@@ -102,7 +105,7 @@ const IntelligencePanel = () => {
                 (intelligence?.financial_health_score || 0) >= 50 ? 'bg-yellow-500' :
                   'bg-red-500'
               }`}
-            style={{ width: `${intelligence?.financial_health_score || 0}%` }}
+            style={{ width: `${typeof intelligence?.financial_health_score === 'number' ? parseFloat(intelligence.financial_health_score.toFixed(1)) : 0}%` }}
           />
         </div>
       </div>

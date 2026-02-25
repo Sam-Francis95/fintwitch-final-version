@@ -64,19 +64,19 @@ const PredictiveInsightsPanel = () => {
 
       {/* Spending Trend & Pattern */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col gap-2">
+          <p className="text-xs text-gray-400">Spending Trend</p>
+          <div className="flex items-center gap-1.5">
             {getTrendIcon(advancedAnalytics.trend)}
-            <p className="text-xs text-gray-400">Spending Trend</p>
+            <p className={`text-base font-bold leading-tight ${getTrendColor(advancedAnalytics?.trend || 'stable')}`}>
+              {(advancedAnalytics?.trend || 'stable').toUpperCase()}
+            </p>
           </div>
-          <p className={`text-xl font-bold ${getTrendColor(advancedAnalytics?.trend || 'stable')}`}>
-            {(advancedAnalytics?.trend || 'stable').toUpperCase()}
-          </p>
         </div>
 
-        <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-          <p className="text-xs text-gray-400 mb-2">Pattern</p>
-          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${getPatternColor(advancedAnalytics?.spending_pattern || 'normal')}`}>
+        <div className="bg-white/5 rounded-lg p-3 border border-white/10 flex flex-col gap-2">
+          <p className="text-xs text-gray-400">Pattern</p>
+          <span className={`inline-block px-2 py-1 rounded-full text-xs font-bold border text-center self-start ${getPatternColor(advancedAnalytics?.spending_pattern || 'normal')}`}>
             {(advancedAnalytics?.spending_pattern || 'normal').toUpperCase()}
           </span>
         </div>
@@ -126,12 +126,12 @@ const PredictiveInsightsPanel = () => {
       <div className="space-y-3">
         {predictions.projected_monthly_deficit > 0 && (
           <div className="bg-red-500/10 rounded-lg p-4 border border-red-500/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
-                <p className="text-sm text-gray-300">Projected Monthly Deficit</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <p className="text-sm text-gray-300 truncate">Projected Monthly Deficit</p>
               </div>
-              <p className="text-xl font-bold text-red-400">
+              <p className="text-xl font-bold text-red-400 flex-shrink-0 tabular-nums">
                 -₹{predictions.projected_monthly_deficit.toFixed(0)}
               </p>
             </div>
@@ -140,12 +140,12 @@ const PredictiveInsightsPanel = () => {
 
         {predictions.projected_monthly_surplus > 0 && (
           <div className="bg-green-500/10 rounded-lg p-4 border border-green-500/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-400" />
-                <p className="text-sm text-gray-300">Projected Monthly Surplus</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <TrendingUp className="w-4 h-4 text-green-400 flex-shrink-0" />
+                <p className="text-sm text-gray-300 truncate">Projected Monthly Surplus</p>
               </div>
-              <p className="text-xl font-bold text-green-400">
+              <p className="text-xl font-bold text-green-400 flex-shrink-0 tabular-nums">
                 +₹{predictions.projected_monthly_surplus.toFixed(0)}
               </p>
             </div>
@@ -154,12 +154,12 @@ const PredictiveInsightsPanel = () => {
 
         {/* Recommended Daily Budget */}
         <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-blue-400" />
-              <p className="text-sm text-gray-300">Recommended Daily Budget</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <DollarSign className="w-4 h-4 text-blue-400 flex-shrink-0" />
+              <p className="text-sm text-gray-300 truncate">Recommended Daily Budget</p>
             </div>
-            <p className="text-xl font-bold text-blue-400">
+            <p className="text-xl font-bold text-blue-400 flex-shrink-0 tabular-nums">
               ₹{predictions.recommended_daily_budget?.toFixed(0) || '0'}
             </p>
           </div>

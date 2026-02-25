@@ -75,17 +75,19 @@ const CategoryBreakdown = () => {
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-indigo-500/30">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <Layers className="w-6 h-6 text-indigo-400" />
-          <h3 className="text-xl font-bold text-indigo-400">Category Breakdown</h3>
-          <span className="px-2 py-1 bg-indigo-500/20 rounded text-xs text-indigo-300">
+      <div className="flex flex-wrap items-center justify-between gap-y-2 mb-6">
+        <div className="flex items-center gap-2 min-w-0">
+          <Layers className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+          <h3 className="text-xl font-bold text-indigo-400 whitespace-nowrap">Category Breakdown</h3>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="px-2 py-1 bg-indigo-500/20 rounded text-xs text-indigo-300 whitespace-nowrap">
             Aggregated
           </span>
+          <span className="text-sm text-gray-400 whitespace-nowrap">
+            {categories.length} {categories.length !== 1 ? 'categories' : 'category'}
+          </span>
         </div>
-        <span className="text-sm text-gray-400">
-          {categories.length} categories
-        </span>
       </div>
 
       {/* Pie Chart */}

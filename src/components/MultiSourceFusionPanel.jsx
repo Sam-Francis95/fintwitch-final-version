@@ -85,13 +85,11 @@ const MultiSourceFusionPanel = () => {
       {/* Overall Risk Score */}
       <div className="bg-white/5 rounded-lg p-6 mb-4 border border-white/10">
         <p className="text-sm text-gray-400 mb-3 text-center">Overall Financial Risk</p>
-        <div className="flex items-center justify-center gap-4 mb-3">
-          <div className="text-center">
-            <p className={`text-5xl font-bold ${getRiskColor(fusion?.overall_financial_risk || 0)}`}>
-              {(fusion?.overall_financial_risk || 0)?.toFixed(0)}
-            </p>
-            <p className="text-gray-400 text-sm">/ 100</p>
-          </div>
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <p className={`text-5xl font-bold tabular-nums ${getRiskColor(fusion?.overall_financial_risk || 0)}`}>
+            {(fusion?.overall_financial_risk || 0)?.toFixed(0)}
+          </p>
+          <p className="text-gray-400 text-xl self-end pb-1">/ 100</p>
         </div>
 
         {/* Risk Bar */}
@@ -116,11 +114,11 @@ const MultiSourceFusionPanel = () => {
             <p className="text-sm text-gray-300 mb-1">Market-Adjusted Health Score</p>
             <p className="text-xs text-gray-400">Includes external market conditions</p>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-purple-300">
+          <div className="text-right flex items-baseline gap-1 justify-end">
+            <p className="text-3xl font-bold text-purple-300 tabular-nums">
               {fusion?.market_adjusted_health?.toFixed(0) || '0'}
             </p>
-            <p className="text-xs text-gray-400">/ 100</p>
+            <p className="text-sm text-gray-400">/ 100</p>
           </div>
         </div>
       </div>

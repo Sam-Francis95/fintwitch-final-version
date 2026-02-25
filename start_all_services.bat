@@ -11,9 +11,9 @@ echo.
 echo Starting all services...
 echo.
 
-REM Start ENHANCED Pathway Streaming Engine via WSL (Port 8000) - CRITICAL!
-echo [1/4] Starting Pathway Streaming Engine (WSL)...
-start "Pathway Streaming (WSL - Port 8000)" wsl -d Ubuntu -u root -- /root/pw_venv/bin/python3 /mnt/c/Users/lenovo/Desktop/fin_final2/backend/pathway_streaming_enhanced.py
+REM Start ENHANCED Pathway Streaming Engine via Windows Python (Port 8000) - CRITICAL!
+echo [1/4] Starting Pathway Streaming Engine (Port 8000)...
+start "Pathway Streaming (Port 8000)" cmd /k "cd /d %~dp0backend && %~dp0.venv\Scripts\python.exe pathway_streaming_enhanced.py"
 timeout /t 5 /nobreak >nul
 
 REM Start Financial Event Generator (Port 5000)

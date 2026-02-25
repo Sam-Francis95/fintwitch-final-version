@@ -153,7 +153,7 @@ latest_fusion_metrics = {
 
 # Streaming status
 streaming_status = {
-    "engine_active": PATHWAY_AVAILABLE,
+    "engine_active": True,  # True whenever FastAPI is running
     "events_processed": 0,
     "transactions_processed": 0,
     "external_signals_processed": 0,
@@ -162,7 +162,7 @@ streaming_status = {
     "uptime_seconds": 0,
     "active_data_sources": [],
     "current_window_size": 5,
-    "pipeline_health": "operational"
+    "pipeline_health": "operational" if PATHWAY_AVAILABLE else "fallback"
 }
 
 # Categories and windowed
@@ -180,7 +180,7 @@ latest_intelligence = {
 latest_llm_insights = None
 
 # Thread-safe lock
-state_lock = threading.Lock()
+state_lock = threading.RLock()  # RLock allows re-entry from same thread (fixes deadlock in update_fallback_state)
 
 # External stream generator
 external_stream_generator = None
@@ -519,17 +519,24 @@ def update_fallback_state():
             return
         
         total_income = sum(t['amount'] for t in transaction_history if t['type'] == 'income')
-        total_expenses = sum(t['amount'] for t in transaction_history if t['type'] == 'expense')
-        balance = total_income - total_expenses
+        # Expense amounts arrive as negative numbers from the frontend (e.g. -500 for a ₹500 spend)
+        # so total_expenses is negative. We store the absolute value for display, and compute
+        # balance as income + total_expenses_signed (= income - abs_expenses).
+        total_expenses_signed = sum(t['amount'] for t in transaction_history if t['type'] == 'expense')
+        abs_expenses = abs(total_expenses_signed)
+        balance = total_income + total_expenses_signed  # signed sum = correct net
+        all_amounts = [abs(t['amount']) for t in transaction_history]
+        avg_txn = sum(all_amounts) / len(all_amounts)
+        health = max(0, min(100, 100 - (abs_expenses / max(total_income, 1) * 100)))
         
         latest_metrics.update({
             "total_income": total_income,
-            "total_expenses": total_expenses,
+            "total_expenses": -abs_expenses,   # negative so UI shows ₹-X correctly
             "balance": balance,
             "net_cash_flow": balance,
             "transaction_count": len(transaction_history),
-            "average_transaction": sum(t['amount'] for t in transaction_history) / len(transaction_history),
-            "financial_health_score": max(0, 100 - (total_expenses / max(total_income, 1) * 100))
+            "average_transaction": avg_txn,
+            "financial_health_score": health
         })
         
         compute_predictions()
@@ -572,8 +579,11 @@ def compute_predictions():
                 latest_predictions["projected_monthly_deficit"] = projected_monthly_expenses - projected_monthly_income
                 latest_predictions["projected_monthly_surplus"] = 0.0
         
-        # Recommended daily budget (to maintain positive balance)
-        if balance > 0:
+        # Recommended daily budget: 60% of total income spread over 30 days
+        # Falls back to balance/30 if no income yet
+        if monthly_income > 0:
+            latest_predictions["recommended_daily_budget"] = round(monthly_income * 0.6 / 30, 0)
+        elif balance > 0:
             latest_predictions["recommended_daily_budget"] = round(balance / 30, 2)
         else:
             latest_predictions["recommended_daily_budget"] = 0.0
@@ -744,34 +754,35 @@ def compute_intelligence():
     expenses = metrics['total_expenses']
     
     # Apply rules
-    if expenses > income and income > 0:
-        alerts.append(f"? OVERSPENDING: Expenses (Rupee {expenses:.2f}) exceed income (Rupee {income:.2f})")
+    abs_expenses = abs(expenses)
+    if abs_expenses > income and income > 0:
+        alerts.append(f"\u26a0\ufe0f OVERSPENDING: Expenses (\u20b9{abs_expenses:.2f}) exceed income (\u20b9{income:.2f})")
         risk_factors['overspending'] = True
-        recommendations.append("? Priority: Reduce discretionary spending by 20-30%")
+        recommendations.append("Priority 1: Reduce discretionary spending by 20-30%")
     
     if balance < 0:
-        alerts.append(f"?? NEGATIVE BALANCE: Account overdrawn by Rupee {abs(balance):.2f}")
+        alerts.append(f"\U0001f6a8 NEGATIVE BALANCE: Account overdrawn by \u20b9{abs(balance):.2f}")
         risk_factors['negative_balance'] = True
-        recommendations.append("? Immediate: Stop non-essential spending")
+        recommendations.append("Immediate: Stop all non-essential spending")
     elif balance < 5000:
-        warnings.append(f"? Low balance warning: Only Rupee {balance:.2f} remaining")
+        warnings.append(f"\u26a0\ufe0f Low balance: Only \u20b9{balance:.2f} remaining")
         risk_factors['low_balance'] = True
-        recommendations.append("? Build emergency fund to Rupee 15,000 minimum")
+        recommendations.append("Build emergency fund to \u20b9 15,000 minimum")
     
     health_score = metrics['financial_health_score']
     if health_score < 30:
-        insights.append("?? Financial health is in critical range")
+        insights.append("\U0001f534 Financial health is in critical range")
     elif health_score < 60:
-        insights.append("? Financial health needs improvement")
+        insights.append("\U0001f7e1 Financial health needs improvement")
     else:
-        insights.append("OK Maintaining healthy financial habits")
+        insights.append("\u2705 Maintaining healthy financial habits")
     
-    # Risk level
-    if balance < 0 or (income > 0 and expenses > income * 2):
+    # Risk level (use abs_expenses since expenses is stored as negative)
+    if balance < 0 or (income > 0 and abs_expenses > income * 2):
         risk_level = "CRITICAL"
-    elif expenses > income or balance < 2000:
+    elif abs_expenses > income or balance < 2000:
         risk_level = "HIGH"
-    elif balance < 5000 or (income > 0 and expenses > income * 0.8):
+    elif balance < 5000 or (income > 0 and abs_expenses > income * 0.8):
         risk_level = "MEDIUM"
     else:
         risk_level = "LOW"
@@ -820,19 +831,19 @@ async def generate_llm_insights_async():
         # Add context about advanced analytics
         if context["advanced_analytics"].get("trend") == "rising":
             insights["insights"].append(
-                f"? Trend Analysis: Spending is {context['advanced_analytics']['trend']} - "
-                f"your spending velocity is Rupee {context['advanced_analytics']['spending_velocity']:.2f}/min"
+                f"\U0001f4c8 Trend Analysis: Spending is {context['advanced_analytics']['trend']} - "
+                f"velocity \u20b9{context['advanced_analytics']['spending_velocity']:.2f}/min"
             )
         
         if context["predictions"].get("days_until_zero_balance"):
             insights["insights"].append(
-                f"? Projection: At current rate, balance depletes in "
+                f"\u23f1\ufe0f Projection: At current rate, balance depletes in "
                 f"{context['predictions']['days_until_zero_balance']} days"
             )
         
         if context["fusion_metrics"].get("overall_financial_risk", 0) > 50:
             insights["insights"].append(
-                f"? Market-Adjusted Risk: {context['fusion_metrics']['overall_financial_risk']:.0f}/100 "
+                f"\u26a1 Market-Adjusted Risk: {context['fusion_metrics']['overall_financial_risk']:.0f}/100 "
                 f"(including external factors)"
             )
     
@@ -972,15 +983,64 @@ def get_predictions():
 
 @app.get("/metrics/categories")
 def get_category_metrics():
-    """Get category-wise aggregations"""
+    """Get category-wise aggregations — fallback computes from transaction_history"""
     with state_lock:
-        return latest_categories.copy()
+        if latest_categories and PATHWAY_RUNNING:
+            return {"categories": list(latest_categories.values())}
+
+        # Fallback: aggregate from in-memory transaction_history
+        cat_data: dict = {}
+        for t in transaction_history:
+            cat = t.get('category', 'other')
+            if cat not in cat_data:
+                cat_data[cat] = {
+                    "category": cat,
+                    "total_income": 0.0,
+                    "total_expenses": 0.0,
+                    "transaction_count": 0
+                }
+            if t['type'] == 'income':
+                cat_data[cat]['total_income'] += t['amount']
+            else:
+                cat_data[cat]['total_expenses'] += abs(t['amount'])
+            cat_data[cat]['transaction_count'] += 1
+
+        return {"categories": list(cat_data.values())}
 
 @app.get("/metrics/windowed")
-def get_windowed_metrics():
-    """Get time-windowed analytics"""
+def get_windowed_metrics(window_minutes: int = Query(default=5, ge=1, le=60)):
+    """Get time-windowed analytics - computed from transaction_history in fallback mode"""
     with state_lock:
-        return latest_windowed.copy()
+        # If real Pathway populated the windowed data, use it
+        if latest_windowed and PATHWAY_RUNNING:
+            return latest_windowed.copy()
+
+        # Fallback: compute from in-memory transaction_history using the requested window
+        now_ms = int(datetime.now().timestamp() * 1000)
+        cutoff_ms = now_ms - (window_minutes * 60 * 1000)
+        recent = [t for t in transaction_history if t.get('timestamp', 0) >= cutoff_ms]
+
+        recent_income = sum(t['amount'] for t in recent if t['type'] == 'income')
+        # Expense amounts come in negative; store abs for display, keep signed for net
+        recent_expenses_signed = sum(t['amount'] for t in recent if t['type'] == 'expense')
+        abs_recent_expenses = abs(recent_expenses_signed)
+        tx_count = len(recent)
+        spend_rate = round(abs_recent_expenses / window_minutes, 2) if window_minutes > 0 else 0
+
+        if tx_count > 0:
+            period_summary = (f"\u20b9{abs_recent_expenses:.2f} spent, "
+                              f"\u20b9{recent_income:.2f} received in last {window_minutes} min")
+        else:
+            period_summary = f"No transactions in the last {window_minutes} min"
+
+        return {
+            "recent_income": round(recent_income, 2),
+            "recent_expenses": round(abs_recent_expenses, 2),
+            "recent_transactions": tx_count,
+            "spending_rate_per_minute": spend_rate,
+            "period_summary": period_summary,
+            "window_minutes": window_minutes
+        }
 
 @app.get("/metrics/fusion")
 def get_fusion_metrics():
@@ -1128,6 +1188,12 @@ async def startup_event():
     
     # Start polling external stream
     asyncio.create_task(poll_external_stream())
+
+    # Always mark engine as active (fallback mode still serves all endpoints)
+    streaming_status["engine_active"] = True
+    if not PATHWAY_AVAILABLE:
+        streaming_status["pipeline_health"] = "fallback"
+        print("[Pathway] Running in fallback mode - all endpoints active")
 
     # Start the real Pathway pipeline in a background thread (pw.run() is blocking)
     if PATHWAY_AVAILABLE:

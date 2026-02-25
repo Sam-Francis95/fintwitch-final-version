@@ -32,6 +32,31 @@ export default function FinancialChatbot() {
         localStorage.setItem('fintwitch_chat_history', JSON.stringify(resetState));
     };
 
+    // Finance-domain keywords used to determine if a question is finance-related
+    const FINANCE_KEYWORDS = [
+        'money','finance','financial','budget','budgeting','invest','investing','investment',
+        'stock','share','equity','bond','mutual fund','sip','etf','portfolio','dividend',
+        'saving','savings','expense','income','salary','wage','earning','revenue',
+        'tax','deduction','80c','gst','itr','return','refund',
+        'loan','emi','debt','credit','credit card','credit score','cibil',
+        'interest','rate','inflation','recession','gdp','economy','economic',
+        'bank','banking','account','fd','rd','ppf','nps','elss',
+        'retirement','pension','insurance','premium','policy',
+        'wealth','rich','poor','broke','profit','loss','net worth',
+        'crypto','bitcoin','nft','blockchain','forex','currency',
+        'market','bull','bear','trade','trading','broker','sebi','rbi',
+        'diversif','compound','liquidity','asset','liability','balance sheet',
+        'cashflow','cash flow','rupee','dollar','inr','usd','payment','transaction',
+        'level 1','level 2','level 3','level 4','level 5','level 6',
+        'spend','spent','earn','earned','save','saved','afford','cheap','expensive',
+        'emergency fund','goal','financial goal','retire','fire movement'
+    ];
+
+    const isFinanceRelated = (text) => {
+        const lower = text.toLowerCase();
+        return FINANCE_KEYWORDS.some(kw => lower.includes(kw));
+    };
+
     const handleSendMessage = (textOverride = null) => {
         const textToProcess = textOverride || inputValue;
         if (!textToProcess.trim()) return;
@@ -39,8 +64,25 @@ export default function FinancialChatbot() {
         // User Message
         const newMessages = [...messages, { type: 'user', text: textToProcess }];
 
-        // --- IMPROVED MATCHING LOGIC ---
+        // --- FINANCE-ONLY FILTER ---
         const lowerInput = textToProcess.toLowerCase();
+
+        // Allow greetings through the filter
+        const isGreeting = ['hi','hello','hey','thanks','thank you','bye','good morning','good evening'].some(g => lowerInput.trim() === g || lowerInput.trim().startsWith(g));
+
+        if (!isGreeting && !isFinanceRelated(textToProcess)) {
+            setMessages([...newMessages, { type: 'loading' }]);
+            setTimeout(() => {
+                setMessages(prev => {
+                    const filtered = prev.filter(m => m.type !== 'loading');
+                    return [...filtered, { type: 'bot', text: "I'm a **Finance-only** assistant. I can only answer questions related to personal finance, investing, budgeting, taxes, savings, loans, and financial planning.\n\nTry asking: _\"What is a SIP?\"_, _\"How to build an emergency fund?\"_, or _\"Explain compound interest.\"_" }];
+                });
+            }, 400);
+            setInputValue('');
+            return;
+        }
+
+        // --- IMPROVED MATCHING LOGIC ---
         const inputWords = lowerInput.split(/\s+/).filter(w => w.length > 2); // Split and ignore small words
 
         let bestMatch = { key: null, score: 0, content: null };

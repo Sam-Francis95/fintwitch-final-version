@@ -353,7 +353,8 @@ export function UserProvider({ children }) {
                 });
             };
             
-            startEventListener(user.balance, handleEvent);
+            // Pass a getter so every poll uses the current live balance (fixes stale closure)
+            startEventListener(() => userRef.current.balance, handleEvent);
             console.log('🎧 Financial event listener started');
         }
         

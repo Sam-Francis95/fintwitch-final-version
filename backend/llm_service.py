@@ -422,17 +422,19 @@ Be direct, practical, and data-driven. Use Indian Rupee (Rupee ) format."""
         risk_level = intelligence.get('risk_level', 'MEDIUM')
         
         # Generate contextual summary
+        abs_expenses = abs(expenses)
         if balance < 0:
-            summary = f"?? Critical: Your account is overdrawn by Rupee {abs(balance):.2f}. Expenses (Rupee {expenses:.2f}) have exceeded income (Rupee {income:.2f})."
-        elif expenses > income:
-            summary = f"?? High risk: Expenses (Rupee {expenses:.2f}) exceed income (Rupee {income:.2f}) by Rupee {expenses - income:.2f}. Current balance: Rupee {balance:.2f}."
+            summary = f"\U0001f6a8 Critical: Your account is overdrawn by \u20b9{abs(balance):.2f}. Expenses (\u20b9{abs_expenses:.2f}) have exceeded income (\u20b9{income:.2f})."
+        elif abs_expenses > income:
+            summary = f"\u26a0\ufe0f High risk: Expenses (\u20b9{abs_expenses:.2f}) exceed income (\u20b9{income:.2f}) by \u20b9{abs_expenses - income:.2f}. Current balance: \u20b9{balance:.2f}."
         elif balance < 5000:
-            summary = f"? Low balance warning: Only Rupee {balance:.2f} remaining. You've earned Rupee {income:.2f} and spent Rupee {expenses:.2f}."
+            summary = f"\u26a0\ufe0f Low balance: Only \u20b9{balance:.2f} remaining. Earned \u20b9{income:.2f}, spent \u20b9{abs_expenses:.2f}."
         else:
-            summary = f"OK Stable finances: Balance of Rupee {balance:.2f} with healthy income (Rupee {income:.2f}) vs expenses (Rupee {expenses:.2f})."
+            summary = f"\u2705 Stable finances: Balance \u20b9{balance:.2f} — income \u20b9{income:.2f} vs expenses \u20b9{abs_expenses:.2f}."
         
-        # Risk explanation
-        expense_ratio = (expenses / max(income, 1)) * 100
+        # Risk explanation (use abs since expenses stored as negative)
+        abs_expenses_for_ratio = abs(expenses)
+        expense_ratio = (abs_expenses_for_ratio / max(income, 1)) * 100
         risk_explanations = {
             "CRITICAL": f"Risk is CRITICAL because your expense ratio is {expense_ratio:.0f}% (should be <80%). Immediate action required.",
             "HIGH": f"Risk is HIGH because expenses represent {expense_ratio:.0f}% of income. Reduce spending to stabilize.",
@@ -443,21 +445,22 @@ Be direct, practical, and data-driven. Use Indian Rupee (Rupee ) format."""
         
         # Context-aware recommendations
         recommendations = []
+        abs_expenses = abs(expenses)
         if balance < 0:
-            recommendations.append("? Priority 1: Stop all non-essential spending immediately")
-            recommendations.append("? Priority 2: Identify income sources to cover overdraft")
-        elif expenses > income:
-            recommendations.append("? Priority: Reduce discretionary spending by 20-30%")
-            recommendations.append("? Analyze top spending categories and set limits")
+            recommendations.append("\U0001f6a8 Priority 1: Stop all non-essential spending immediately")
+            recommendations.append("\U0001f4b0 Priority 2: Identify income sources to cover overdraft")
+        elif abs_expenses > income:
+            recommendations.append("\u26a0\ufe0f Priority: Reduce discretionary spending by 20-30%")
+            recommendations.append("\U0001f4ca Analyze top spending categories and set limits")
         elif balance < 5000:
-            recommendations.append("? Build emergency fund to Rupee 15,000 minimum")
-            recommendations.append("? Reduce expenses to save Rupee 2,000-3,000 monthly")
+            recommendations.append("\U0001f4c8 Build emergency fund to \u20b9 15,000 minimum")
+            recommendations.append("\U0001f4b5 Reduce expenses to save \u20b9 2,000-3,000 monthly")
         else:
-            recommendations.append("OK Continue current spending habits")
-            recommendations.append("? Consider allocating 10-20% to savings/investments")
+            recommendations.append("\u2705 Continue current spending habits")
+            recommendations.append("\U0001f4b9 Consider allocating 10-20% to savings/investments")
         
-        recommendations.append("? Track spending by category weekly")
-        recommendations.append("? Set monthly budget limits")
+        recommendations.append("\U0001f4cb Track spending by category weekly")
+        recommendations.append("\U0001f3af Set monthly budget limits")
         
         return {
             "summary": summary,

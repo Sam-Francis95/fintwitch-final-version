@@ -81,13 +81,13 @@ const ExternalSignalsPanel = () => {
 
       {/* Economic Indicators Grid */}
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30">
+        <div className="bg-blue-500/10 rounded-lg p-4 border border-blue-500/30 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-2 mb-2">
             <Activity className="w-4 h-4 text-blue-400" />
             <p className="text-xs text-gray-400">Volatility</p>
           </div>
-          <p className="text-2xl font-bold text-white">
-            {(signals?.market_volatility || 0 * 100).toFixed(0)}%
+          <p className="text-2xl font-bold text-white tabular-nums">
+            {((signals?.market_volatility ?? 0) * 100).toFixed(0)}%
           </p>
           <p className={`text-xs mt-1 ${signals.market_volatility > 0.5 ? 'text-red-400' : 'text-green-400'
             }`}>
@@ -95,12 +95,12 @@ const ExternalSignalsPanel = () => {
           </p>
         </div>
 
-        <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/30">
+        <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/30 flex flex-col items-center justify-center text-center">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-purple-400" />
             <p className="text-xs text-gray-400">Interest Rate</p>
           </div>
-          <p className="text-2xl font-bold text-white">
+          <p className="text-2xl font-bold text-white tabular-nums">
             {signals?.interest_rate?.toFixed(2) || '0.00'}%
           </p>
           <p className={`text-xs mt-1 ${signals.interest_rate > 7 ? 'text-red-400' : 'text-green-400'
@@ -174,18 +174,18 @@ const ExternalSignalsPanel = () => {
             <Calendar className="w-4 h-4 text-gray-400" />
             <p className="text-sm text-gray-400 font-semibold">Recent External Events</p>
           </div>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {signals.recent_events.slice(-5).reverse().map((event, idx) => (
               <div key={idx} className="bg-white/5 rounded p-3 border border-white/10">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-300 text-xs rounded">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-300 text-xs rounded flex-shrink-0">
                     {event.category?.toUpperCase()}
                   </span>
-                  <span className="text-xs text-gray-500">
-                    {event.time ? new Date(event.time).toLocaleTimeString() : ''}
+                  <span className="text-xs text-gray-400 flex-shrink-0 whitespace-nowrap">
+                    {event.time ? new Date(event.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
                   </span>
                 </div>
-                <p className="text-xs text-gray-300">{event.description}</p>
+                <p className="text-xs text-gray-300 break-words">{event.description}</p>
               </div>
             ))}
           </div>

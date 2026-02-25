@@ -20,39 +20,63 @@ event_queue = []
 queue_lock = threading.Lock()
 
 # Balance thresholds for adaptive economy
-CRITICAL_BALANCE_THRESHOLD = 0    # At or below this: Block all expenses
-EXPENSE_BLOCK_THRESHOLD = 100     # Below this: No expenses generated
-RECOVERY_THRESHOLD = 800          # Must reach this to resume normal expenses
-LOW_BALANCE_THRESHOLD = 500       # Boost income generation
-RECOVERY_BALANCE_THRESHOLD = 1500 # Return to normal mode
-HIGH_BALANCE_THRESHOLD = 125000   # Above this: Increase expenses significantly
+CRITICAL_BALANCE_THRESHOLD = 0     # At or below this: trigger recovery mode
+EXPENSE_BLOCK_THRESHOLD = 100      # Below this: No expenses generated
+RECOVERY_THRESHOLD = 2000          # Must reach this to exit recovery mode and resume normal expenses
+LOW_BALANCE_THRESHOLD = 500        # Boost income generation
+RECOVERY_BALANCE_THRESHOLD = 1500  # Return to balanced mode
+HIGH_BALANCE_THRESHOLD = 90000     # Above this: Increase expenses significantly
+MAX_BALANCE_THRESHOLD = 100000     # Hard cap: income blocked until user allocates money
+
+# Recovery state tracker - once balance hits 0, expenses are blocked until RECOVERY_THRESHOLD
+recovery_mode_active = False
 
 def generate_event(user_balance=None):
     """Generates a random financial event with adaptive economy logic."""
-    # Adaptive probability based on user's balance
-    if user_balance is not None and user_balance >= HIGH_BALANCE_THRESHOLD:
-        # HIGH BALANCE MODE: Increase expenses dramatically
-        income_probability = 0.10  # 10% Income, 90% Expense
-        expense_multiplier = 2.5   # 2.5x expense amounts
-        print(f"💰 HIGH BALANCE MODE (Balance: ₹{user_balance:.2f}) - Increased expenses!")
-    elif user_balance is not None and user_balance <= EXPENSE_BLOCK_THRESHOLD:
-        # CRITICAL: 100% Income, 0% Expense (complete recovery mode)
-        # Expenses only resume after balance reaches RECOVERY_THRESHOLD
-        income_probability = 1.0
-        expense_multiplier = 0.0
-        print(f"🚨 RECOVERY MODE (Balance: ₹{user_balance:.2f}) - INCOME ONLY until ₹{RECOVERY_THRESHOLD}!")
-    elif user_balance is not None and user_balance < LOW_BALANCE_THRESHOLD:
-        # Low balance: 80% Income, 20% Expense (help user recover)
-        income_probability = 0.80
-        expense_multiplier = 0.4  # Reduce expense amounts significantly
-        print(f"⚠️  LOW BALANCE MODE ({user_balance}) - Boosting income...")
-    elif user_balance is not None and user_balance < RECOVERY_BALANCE_THRESHOLD:
-        # Recovery mode: 50% Income, 50% Expense (balanced)
-        income_probability = 0.50
-        expense_multiplier = 0.7
-        print(f"📈 RECOVERY MODE ({user_balance}) - Balanced generation...")
+    global recovery_mode_active
+
+    if user_balance is not None:
+        # Exit recovery mode once balance reaches RECOVERY_THRESHOLD
+        if recovery_mode_active and user_balance >= RECOVERY_THRESHOLD:
+            recovery_mode_active = False
+            print(f"✅ RECOVERY COMPLETE (Balance: \u20b9{user_balance:.2f}) - Resuming normal mode")
+
+        if user_balance <= CRITICAL_BALANCE_THRESHOLD:
+            # Trigger recovery mode — income only until RECOVERY_THRESHOLD
+            recovery_mode_active = True
+            income_probability = 1.0
+            expense_multiplier = 0.0
+            print(f"🚨 CRITICAL: Balance \u20b9{user_balance:.2f} - INCOME ONLY until \u20b9{RECOVERY_THRESHOLD}")
+        elif recovery_mode_active:
+            # Still recovering — balance > 0 but hasn't hit RECOVERY_THRESHOLD yet
+            income_probability = 1.0
+            expense_multiplier = 0.0
+            print(f"🔄 RECOVERING (Balance: \u20b9{user_balance:.2f}) - Income only until \u20b9{RECOVERY_THRESHOLD}")
+        elif user_balance >= MAX_BALANCE_THRESHOLD:
+            # Balance cap reached — block all income until user allocates money
+            income_probability = 0.0
+            expense_multiplier = 3.0
+            print(f"🔝 CAP REACHED (Balance: \u20b9{user_balance:.2f}) - Expenses only; allocate money to unlock growth")
+        elif user_balance >= HIGH_BALANCE_THRESHOLD:
+            # High balance — heavy expenses to challenge player
+            income_probability = 0.10
+            expense_multiplier = 2.5
+            print(f"💰 HIGH BALANCE MODE (Balance: \u20b9{user_balance:.2f}) - Increased expenses!")
+        elif user_balance < LOW_BALANCE_THRESHOLD:
+            # Low balance — boost income
+            income_probability = 0.80
+            expense_multiplier = 0.4
+            print(f"⚠️  LOW BALANCE MODE ({user_balance}) - Boosting income...")
+        elif user_balance < RECOVERY_BALANCE_THRESHOLD:
+            # Balanced mode
+            income_probability = 0.50
+            expense_multiplier = 0.7
+            print(f"📈 BALANCED MODE ({user_balance}) - Balanced generation...")
+        else:
+            # Normal mode — challenge player (20% income, 80% expense)
+            income_probability = 0.20
+            expense_multiplier = 1.0
     else:
-        # Normal mode: 20% Income, 80% Expense (challenge player)
         income_probability = 0.20
         expense_multiplier = 1.0
     
@@ -158,12 +182,13 @@ def get_events():
     if user_balance is not None:
         adaptive_event = generate_event(user_balance)
         print_event(adaptive_event)
-        forward_to_pathway(adaptive_event)  # Forward to Pathway
+        # NOTE: Do NOT forward_to_pathway here - the frontend transact() already
+        # calls sendToBackend(tx) which sends to Pathway. Double-calling would
+        # inflate Pathway metrics by 2x.
         return jsonify([adaptive_event])
     
     # Fallback: generate normal event if no balance provided
     normal_event = generate_event(None)
-    forward_to_pathway(normal_event)  # Forward to Pathway
     return jsonify([normal_event])
 
 @app.route('/status', methods=['GET'])

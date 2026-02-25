@@ -6,7 +6,7 @@ const POLL_INTERVAL = 3000; // Check every 3 seconds
 
 let pollingInterval = null;
 
-export const startEventListener = (balance, onEventReceived) => {
+export const startEventListener = (getBalance, onEventReceived) => {
   if (pollingInterval) {
     console.log('Event listener already running');
     return;
@@ -16,6 +16,8 @@ export const startEventListener = (balance, onEventReceived) => {
   
   const pollEvents = async () => {
     try {
+      // Always get the latest balance (supports both function and static value)
+      const balance = typeof getBalance === 'function' ? getBalance() : getBalance;
       const response = await fetch(`${EVENT_BACKEND_URL}/events?balance=${balance}`, {
         method: 'GET',
       });

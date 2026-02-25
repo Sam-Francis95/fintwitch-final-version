@@ -111,14 +111,12 @@ const WindowedMetrics = () => {
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         {/* Recent Income */}
-        <div className="p-4 bg-green-900/20 rounded-lg border border-green-500/30">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-green-400 text-sm font-medium flex items-center">
-              <TrendingUp className="w-4 h-4 mr-1" />
-              Income
-            </span>
+        <div className="p-4 bg-green-900/20 rounded-lg border border-green-500/30 flex flex-col items-center text-center">
+          <div className="flex items-center gap-1 mb-2">
+            <TrendingUp className="w-4 h-4 text-green-400" />
+            <span className="text-green-400 text-sm font-medium">Income</span>
           </div>
-          <p className="text-2xl font-bold text-green-300">
+          <p className="text-xl font-bold text-green-300 tabular-nums break-all">
             ₹{metrics?.recent_income?.toFixed(2) || '0.00'}
           </p>
           <p className="text-xs text-green-400/60 mt-1">
@@ -127,14 +125,12 @@ const WindowedMetrics = () => {
         </div>
 
         {/* Recent Expenses */}
-        <div className="p-4 bg-red-900/20 rounded-lg border border-red-500/30">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-red-400 text-sm font-medium flex items-center">
-              <TrendingDown className="w-4 h-4 mr-1" />
-              Expenses
-            </span>
+        <div className="p-4 bg-red-900/20 rounded-lg border border-red-500/30 flex flex-col items-center text-center">
+          <div className="flex items-center gap-1 mb-2">
+            <TrendingDown className="w-4 h-4 text-red-400" />
+            <span className="text-red-400 text-sm font-medium">Expenses</span>
           </div>
-          <p className="text-2xl font-bold text-red-300">
+          <p className="text-xl font-bold text-red-300 tabular-nums break-all">
             ₹{metrics?.recent_expenses?.toFixed(2) || '0.00'}
           </p>
           <p className="text-xs text-red-400/60 mt-1">
