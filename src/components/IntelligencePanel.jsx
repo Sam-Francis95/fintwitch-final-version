@@ -70,7 +70,6 @@ const IntelligencePanel = () => {
   return (
     <div className="bg-gray-800 rounded-lg p-6 border border-purple-500/30">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
         <div className="flex items-center gap-2 min-w-0">
           <Activity className="w-6 h-6 text-purple-400 flex-shrink-0" />

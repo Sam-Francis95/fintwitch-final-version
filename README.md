@@ -1,5 +1,5 @@
-<h1 align="center">FinTwitch - Real Intelligence Edition v3.0</h1>
-<h3 align="center">🌊 REAL Pathway Streaming + REAL LLM AI Intelligence 🤖</h3>
+<h1 align="center">FinTwitch - Real-Time Financial Intelligence System v3.0</h1>
+<h3 align="center">🌊 Continuous Data Streaming via Pathway · Real-Time Analytics · LLM-Powered Financial Advisory 🤖</h3>
 
 <p align="center">
   <a href="https://fintwitch-fd0ea.web.app/"><img src="https://img.shields.io/badge/Live-Demo-FF00FF?style=for-the-badge&logo=google-chrome&logoColor=white" /></a>
@@ -41,10 +41,10 @@
 
 ## 🧠 What is FinTwitch?
 
-**FinTwitch** is a **production-grade real-time financial intelligence platform** powered by genuine Pathway streaming and real LLM AI.  
-It combines **interactive financial education**, **habit tracking**, **simulations**, and **live streaming analytics** in an engaging **GTA-inspired UI**.
+**FinTwitch** is a **production-grade real-time financial intelligence and decision-support system** powered by genuine Pathway streaming and real LLM AI.  
+It performs **continuous financial analysis** by ingesting live data streams — generated from user actions, financial events, and external market signals — and processing them in real time through **Pathway, the core streaming engine**, to deliver practical financial insights, risk assessments, and personalized recommendations.
 
-> **"Gaming generates data → REAL Pathway processes → REAL AI advises"**
+> **"User actions, financial events, and external signals generate continuous data streams → Pathway ingests, transforms, and aggregates in real time → AI advisor delivers personalized insights"**
 
 🎯 **Live Demo:** [https://fintwitch-fd0ea.web.app/](https://fintwitch-fd0ea.web.app/)  
 📚 **Hackathon Docs:** [PATHWAY_HACKATHON_DOCS.md](PATHWAY_HACKATHON_DOCS.md)  
@@ -54,13 +54,13 @@ It combines **interactive financial education**, **habit tracking**, **simulatio
 
 ## 🌟 Key Features
 
-### 🎮 Game Features
-- **Career Mode** – Progress through 6 financial literacy levels
-- **Games Zone** – MCQ quizzes, Dream Life Planner, Pathway Stock Market
-- **Finance Tools** – FIRE, Tax, SIP, Loan EMI, Inflation calculators
-- **Habit Tracker** – Build daily consistency with streaks & insights
-- **Achievements System** – Earn XP and unlock trophies
-- **Stock Ticker** – Real-time stock updates with AI analysis
+### 🖥️ Core Platform Features
+- **Career Progression Module** – Structured financial literacy pathway across 6 competency levels
+- **Financial Decision Simulation Lab** – Scenario-based modules (MCQ assessments, Dream Life Planner, Stock Market Simulator) for exploring the consequences of financial choices
+- **Finance Tools Suite** – FIRE, Tax, SIP, Loan EMI, Inflation calculators for real-world analysis
+- **Habit Tracker** – Monitor daily financial discipline with consistency metrics and behavioral insights
+- **Progress & Achievement System** – Track user progress milestones and unlock competency indicators
+- **Stock Ticker** – Real-time stock updates with AI-driven analysis
 
 ### 🌊 Real Pathway Intelligence Engine v3.0 ⭐
 - **REAL Pathway Streaming** – Genuine Pathway library with `ConnectorSubject`, not mock
@@ -81,7 +81,7 @@ It combines **interactive financial education**, **habit tracking**, **simulatio
 
 | Component | Technologies |
 |-----------|---------------|
-| **Game Frontend** | React 18, Zustand, Tailwind CSS, Vite, Framer Motion, Recharts |
+| **Application Frontend** | React 18, Zustand, Tailwind CSS, Vite, Framer Motion, Recharts |
 | **Event Generator** | Python Flask (Port 5000, 5001) |
 | **Pathway Intelligence** | Pathway Streaming, Time Windows, Aggregations, LLM Integration |
 | **Analytics Backend** | FastAPI, Uvicorn (Port 8000) - Serves Pathway computations |
@@ -107,7 +107,7 @@ Start_With_Analytics.bat
 3. **React Frontend** (Port 3000) - Opens to Pathway Dashboard
 
 **Access Points:**
-- 🎮 **Game:** http://localhost:3000
+- 🖥️ **Application:** http://localhost:3000
 - 🌊 **Pathway Dashboard:** http://localhost:3000/pathway
 - 📊 **API Docs:** http://localhost:8000/docs
 - 🤖 **LLM Insights:** http://localhost:8000/insights/llm
@@ -275,9 +275,9 @@ System health and feature status
 ### Data Flow
 
 ```
-User Actions (Game/Tools/Simulations)
+User Actions (Financial Tools / Scenario Simulations / External Market Signals)
         ↓
-Event Generator (Flask:5000) - Creates transactions
+Event Generator (Flask:5000) - Creates transaction events
         ↓
 POST /ingest → Pathway Streaming Engine (Port 8000)
         ↓
@@ -324,16 +324,16 @@ fin_final2/
 │   │   ├── WindowedMetrics.jsx          # ⏱️ Time Windows (NEW)
 │   │   ├── CategoryBreakdown.jsx        # 🏷️ Category Aggregations (NEW)
 │   │   ├── PathwayMetrics.jsx           # Core metrics display
-│   │   └── ... (game components)
+│   │   └── ... (application components)
 │   │
 │   ├── pages/
 │   │   ├── PathwayDashboard.jsx         # 🌊 Enhanced Intelligence Dashboard
-│   │   ├── HomePage.jsx                 # Game home
-│   │   ├── CareerLevelPage.jsx          # Career mode
+│   │   ├── HomePage.jsx                 # Application home
+│   │   ├── CareerLevelPage.jsx          # Career progression module
 │   │   └── ... (other pages)
 │   │
 │   ├── store/
-│   │   └── useGameStore.js              # Zustand state management
+│   │   └── useGameStore.js              # Zustand application state management
 │   │
 │   └── ... (context, hooks, utils)
 │
@@ -380,19 +380,20 @@ fin_final2/
   7. Behavioral pattern recognition
   8. Financial health scoring (0-100 scale)
 
-### 🤖 LLM Integration (xPack Ready)
-- **Natural language summaries** - Narrative financial status
-- **Risk explanations** - Why risk is at current level
-- **Personalized recommendations** - Context-aware actionable advice
-- **Confidence scoring** - LLM certainty indicators
+### 🤖 Real-Time AI Financial Advisor (xPack Ready)
+- **Live context-aware analysis** - AI receives live metrics and external signals before generating any response
+- **Natural language risk assessments** - Explains current risk level using actual streaming data
+- **Personalized recommendations** - Context-driven, actionable financial guidance and forecasts
+- **Proactive warnings** - Flags deteriorating financial indicators before they become critical
+- **Confidence scoring** - Transparency indicators for AI-generated outputs
 - **Mock implementation ready for real LLM** - Drop-in replacement architecture
 
 ### 🎨 Production-Quality Frontend
 - **4 New Intelligence Components** - Real-time auto-updating panels
-- **Polished UI** - GTA-inspired cyberpunk design
+- **Polished UI** - Clean, professional dashboard design optimized for data clarity
 - **Responsive layouts** - Grid-based intelligent dashboards
-- **Auto-refresh intervals** - 2-5 second polling (demonstrates streaming)
-- **Interactive visualizations** - Recharts pie charts, progress bars, health indicators
+- **Auto-refresh intervals** - 2-5 second polling driven by event-driven architecture
+- **Interactive visualizations** - Recharts pie charts, progress bars, financial health indicators
 
 ### 📚 Comprehensive Documentation
 - **PATHWAY_HACKATHON_DOCS.md** - Complete technical documentation
@@ -408,11 +409,11 @@ fin_final2/
 - **Graceful error handling** - Works even with mock Pathway
 
 ### 🌍 Real-World Impact
-- **Educational platform** - Teaches financial literacy
-- **Gamified engagement** - Makes learning fun
-- **Actionable insights** - Not just metrics, but recommendations
-- **Habit building** - Encourages positive financial behaviors
-- **Scalable design** - Ready for production deployment
+- **Decision-support system** - Helps users understand the financial consequences of their choices
+- **Risk management** - Continuously monitors risk exposure and alerts users before situations become critical
+- **Actionable insights** - Produces concrete outputs: risk scores, spending projections, alerts, and financial health indicators
+- **Behavioral analytics** - Tracks and reinforces positive financial habits through engagement metrics
+- **Scalable design** - Event-driven architecture ready for production deployment
 
 ---
 
@@ -431,7 +432,7 @@ fin_final2/
 
 1. ✅ **Launch System** - Run `Start_With_Analytics.bat`
 2. ✅ **View Dashboard** - Opens to http://localhost:3000/pathway
-3. ✅ **Generate Transactions** - Use Career Mode or Tools
+3. ✅ **Generate Transactions** - Use Financial Tools or Scenario Simulation modules
 4. ✅ **Watch Real-Time Updates** - Metrics update automatically
 5. ✅ **Test Time Windows** - Change window duration, see filtering
 6. ✅ **Trigger Intelligence** - Make expenses > income, see alerts
@@ -466,8 +467,8 @@ Built with:
 
 <div align="center">
 
-**FinTwitch Intelligence v2.0**  
-*Where Gaming Meets Real-Time Intelligence* 🌊💡
+**FinTwitch Financial Intelligence System v3.0**  
+*Continuous Streaming Analytics · Real-Time Risk Assessment · AI-Powered Financial Advisory* 🌊💡
 
 Made with ❤️ for the Pathway Hackathon
 

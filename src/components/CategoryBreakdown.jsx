@@ -134,7 +134,9 @@ const CategoryBreakdown = () => {
 
       {/* Category List */}
       <div className="space-y-3 max-h-96 overflow-y-auto">
-        {categories.map((cat, index) => (
+        {categories.map((cat, index) => {
+          const net = (cat?.total_income || 0) - (cat?.total_expenses || 0);
+          return (
           <div
             key={index}
             className="p-3 bg-gray-700/50 rounded-lg border border-gray-600/50 hover:border-indigo-500/30 transition-colors"
@@ -149,9 +151,8 @@ const CategoryBreakdown = () => {
                   {cat.category}
                 </span>
               </div>
-              <span className={`text-sm font-medium ${(cat?.net || 0) >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}>
-                ₹{(cat?.net || 0).toFixed(2)}
+              <span className={`text-sm font-medium ${net >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                ₹{net.toFixed(2)}
               </span>
             </div>
 
@@ -169,7 +170,8 @@ const CategoryBreakdown = () => {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Footer */}
