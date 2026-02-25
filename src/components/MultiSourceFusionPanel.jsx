@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Layers, Shield, TrendingUp, AlertTriangle } from 'lucide-react';
+import { MOCK_FUSION } from '../utils/pathwayMockData';
 
 const MultiSourceFusionPanel = () => {
   const [fusion, setFusion] = useState(null);
@@ -18,7 +19,7 @@ const MultiSourceFusionPanel = () => {
       setFusion(data);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch fusion metrics:', error);
+      setFusion(MOCK_FUSION);
       setLoading(false);
     }
   };

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, MessageSquare, Brain, CheckCircle, TrendingUp } from 'lucide-react';
+import { MOCK_LLM_INSIGHTS } from '../utils/pathwayMockData';
 
 const LLMInsightsPanel = () => {
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     const fetchInsights = async () => {
@@ -13,9 +15,12 @@ const LLMInsightsPanel = () => {
         if (!response.ok) throw new Error('Failed to fetch LLM insights');
         const data = await response.json();
         setInsights(data);
+        setIsDemoMode(false);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        setInsights(MOCK_LLM_INSIGHTS);
+        setIsDemoMode(true);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -35,17 +40,6 @@ const LLMInsightsPanel = () => {
           <h3 className="text-xl font-bold text-purple-400">AI Financial Advisor</h3>
         </div>
         <p className="text-gray-400">Generating insights...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-lg p-6 border border-red-500/30">
-        <p className="text-red-400">Error: {error}</p>
-        <p className="text-xs text-gray-400 mt-2">
-          Make sure the Pathway streaming engine is running on port 8000
-        </p>
       </div>
     );
   }

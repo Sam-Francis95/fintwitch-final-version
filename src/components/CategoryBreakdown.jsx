@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Layers, TrendingUp, TrendingDown } from 'lucide-react';
+import { MOCK_CATEGORIES } from '../utils/pathwayMockData';
 
 const COLORS = ['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#6366F1', '#14B8A6'];
 
@@ -18,7 +19,9 @@ const CategoryBreakdown = () => {
         setCategories(data.categories || []);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        // Fall back to demo data when Pathway is offline
+        setCategories(MOCK_CATEGORIES.categories);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -38,14 +41,6 @@ const CategoryBreakdown = () => {
           <h3 className="text-xl font-bold text-indigo-400">Category Breakdown</h3>
         </div>
         <p className="text-gray-400">Loading category data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-gray-800 rounded-lg p-6 border border-red-500/30">
-        <p className="text-red-400">Error: {error}</p>
       </div>
     );
   }

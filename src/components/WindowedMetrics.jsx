@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, TrendingDown, TrendingUp, Activity, Zap } from 'lucide-react';
+import { MOCK_WINDOWED } from '../utils/pathwayMockData';
 
 const WindowedMetrics = () => {
   const [metrics, setMetrics] = useState(null);
   const [windowSize, setWindowSize] = useState(5); // Default 5 minutes
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -14,9 +16,12 @@ const WindowedMetrics = () => {
         if (!response.ok) throw new Error('Failed to fetch windowed metrics');
         const data = await response.json();
         setMetrics(data);
+        setIsDemoMode(false);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        setMetrics({ ...MOCK_WINDOWED, window_minutes: windowSize });
+        setIsDemoMode(true);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -36,14 +41,6 @@ const WindowedMetrics = () => {
           <h3 className="text-xl font-bold text-blue-400">Time-Windowed Analytics</h3>
         </div>
         <p className="text-gray-400">Loading time-series data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-gray-800 rounded-lg p-6 border border-red-500/30">
-        <p className="text-red-400">Error: {error}</p>
       </div>
     );
   }

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, AlertCircle, Lightbulb, TrendingUp, Shield, Activity } from 'lucide-react';
+import { MOCK_INTELLIGENCE } from '../utils/pathwayMockData';
 
 const IntelligencePanel = () => {
   const [intelligence, setIntelligence] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     const fetchIntelligence = async () => {
@@ -13,9 +15,12 @@ const IntelligencePanel = () => {
         if (!response.ok) throw new Error('Failed to fetch intelligence');
         const data = await response.json();
         setIntelligence(data);
+        setIsDemoMode(false);
         setError(null);
       } catch (err) {
-        setError(err.message);
+        setIntelligence(MOCK_INTELLIGENCE);
+        setIsDemoMode(true);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -35,14 +40,6 @@ const IntelligencePanel = () => {
           <h3 className="text-xl font-bold text-purple-400">Financial Intelligence</h3>
         </div>
         <p className="text-gray-400">Loading intelligence data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-gray-800 rounded-lg p-6 border border-red-500/30">
-        <p className="text-red-400">Error: {error}</p>
       </div>
     );
   }

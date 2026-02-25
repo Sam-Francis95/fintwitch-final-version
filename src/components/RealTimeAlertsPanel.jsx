@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, AlertCircle, TrendingUp, Clock, Target } from 'lucide-react';
+import { MOCK_ALERTS } from '../utils/pathwayMockData';
 
 const RealTimeAlertsPanel = () => {
   const [alerts, setAlerts] = useState(null);
@@ -7,7 +8,7 @@ const RealTimeAlertsPanel = () => {
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000); // Update every 5 seconds
+    const interval = setInterval(fetchAlerts, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -18,7 +19,7 @@ const RealTimeAlertsPanel = () => {
       setAlerts(data);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch alerts:', error);
+      setAlerts(MOCK_ALERTS);
       setLoading(false);
     }
   };

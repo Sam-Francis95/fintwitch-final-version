@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, Zap, Wifi, WifiOff, TrendingUp, Database } from 'lucide-react';
+import { MOCK_STATUS } from '../utils/pathwayMockData';
 
 const StreamingStatusPanel = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
 
   useEffect(() => {
     fetchStatus();
@@ -16,9 +18,23 @@ const StreamingStatusPanel = () => {
       const response = await fetch('http://localhost:8000/status');
       const data = await response.json();
       setStatus(data);
+      setIsDemoMode(false);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch streaming status:', error);
+      // Fall back to demo mode with mock data
+      setStatus({
+        engine_active: true,
+        pipeline_health: 'operational',
+        events_processed: MOCK_STATUS.events_processed,
+        transactions_processed: MOCK_STATUS.total_transactions,
+        external_signals_processed: 3,
+        active_data_sources: ['user_transactions', 'external_signals', 'market_feed'],
+        current_window_size: 60,
+        uptime_seconds: MOCK_STATUS.uptime,
+        last_transaction_time: new Date(Date.now() - 120000).toISOString(),
+        last_external_signal_time: new Date(Date.now() - 300000).toISOString()
+      });
+      setIsDemoMode(true);
       setLoading(false);
     }
   };
@@ -31,17 +47,6 @@ const StreamingStatusPanel = () => {
           <h3 className="text-lg font-bold text-white">Streaming Engine Status</h3>
         </div>
         <p className="text-gray-400">Loading...</p>
-      </div>
-    );
-  }
-
-  if (!status) {
-    return (
-      <div className="bg-gradient-to-br from-red-900/20 to-orange-900/20 backdrop-blur rounded-lg p-6 border border-red-500/30">
-        <div className="flex items-center gap-2">
-          <WifiOff className="w-5 h-5 text-red-400" />
-          <h3 className="text-lg font-bold text-white">Streaming Engine Offline</h3>
-        </div>
       </div>
     );
   }
@@ -79,8 +84,13 @@ const StreamingStatusPanel = () => {
           )}
           <h3 className="text-lg font-bold text-white">Pathway Streaming Engine</h3>
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs font-bold border ${pipelineHealthBg}`}>
-          <span className={pipelineHealthColor}>{(status?.pipeline_health || 'operational').toUpperCase()}</span>
+        <div className="flex items-center gap-2">
+          {isDemoMode && (
+            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold border border-yellow-500/30">DEMO</span>
+          )}
+          <div className={`px-3 py-1 rounded-full text-xs font-bold border ${pipelineHealthBg}`}>
+            <span className={pipelineHealthColor}>{(status?.pipeline_health || 'operational').toUpperCase()}</span>
+          </div>
         </div>
       </div>
 

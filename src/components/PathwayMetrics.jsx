@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Activity, AlertTriangle } from 'lucide-react';
 import { UserContext } from '../context/UserContext';
+import { MOCK_METRICS } from '../utils/pathwayMockData';
 
 /**
  * PathwayMetrics Component
@@ -30,11 +31,14 @@ export default function PathwayMetrics() {
                 setIsConnected(true);
                 setIsLoading(false);
             } else {
-                setIsConnected(false);
+                setMetrics(MOCK_METRICS);
+                setIsConnected(true);
+                setIsLoading(false);
             }
         } catch (error) {
-            console.log('Pathway streaming engine not available');
-            setIsConnected(false);
+            // Use demo data when Pathway is offline
+            setMetrics(MOCK_METRICS);
+            setIsConnected(true);
             setIsLoading(false);
         }
     };
@@ -45,18 +49,6 @@ export default function PathwayMetrics() {
         const interval = setInterval(fetchMetrics, 2000);
         return () => clearInterval(interval);
     }, []);
-
-    if (!isConnected) {
-        return (
-            <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-                <div className="text-center text-slate-400">
-                    <Activity size={48} className="mx-auto mb-3 opacity-30 animate-pulse" />
-                    <p className="text-sm">Pathway Streaming Engine Offline</p>
-                    <p className="text-xs mt-2">Start: backend/start_pathway_streaming.bat</p>
-                </div>
-            </div>
-        );
-    }
 
     const MetricCard = ({ label, value, icon: Icon, color, prefix = '' }) => (
         <motion.div

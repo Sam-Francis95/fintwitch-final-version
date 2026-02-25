@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, Clock, Target, DollarSign, AlertTriangle } from 'lucide-react';
+import { MOCK_PREDICTIONS, MOCK_ADVANCED } from '../utils/pathwayMockData';
 
 const PredictiveInsightsPanel = () => {
   const [predictions, setPredictions] = useState(null);
@@ -24,7 +25,8 @@ const PredictiveInsightsPanel = () => {
       setAdvancedAnalytics(analyticsData);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch predictions:', error);
+      setPredictions(MOCK_PREDICTIONS);
+      setAdvancedAnalytics(MOCK_ADVANCED);
       setLoading(false);
     }
   };

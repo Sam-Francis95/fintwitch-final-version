@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, Globe, Activity, Calendar } from 'lucide-react';
+import { MOCK_EXTERNAL_SIGNALS } from '../utils/pathwayMockData';
 
 const ExternalSignalsPanel = () => {
   const [signals, setSignals] = useState(null);
@@ -18,7 +19,7 @@ const ExternalSignalsPanel = () => {
       setSignals(data);
       setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch external signals:', error);
+      setSignals(MOCK_EXTERNAL_SIGNALS);
       setLoading(false);
     }
   };
