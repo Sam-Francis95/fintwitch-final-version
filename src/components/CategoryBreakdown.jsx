@@ -116,7 +116,7 @@ const CategoryBreakdown = () => {
                 verticalAlign="bottom"
                 height={80}
                 iconType="circle"
-                formatter={(value) => value.charAt(0).toUpperCase() + value.slice(1)}
+                formatter={(value) => value ? value.charAt(0).toUpperCase() + value.slice(1) : ''}
                 wrapperStyle={{
                   paddingTop: '20px',
                   fontSize: '12px'
