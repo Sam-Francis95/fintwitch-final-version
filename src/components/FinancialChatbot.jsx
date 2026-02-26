@@ -196,19 +196,21 @@ export default function FinancialChatbot() {
                                 <button
                                     onClick={clearHistory}
                                     title="Clear History"
-                                    className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-red-400 transition-colors"
+                                    className="p-1.5 bg-white/10 hover:bg-red-500/30 rounded-lg text-white hover:text-red-300 transition-colors border border-white/20"
                                 >
                                     <Trash2 size={16} />
                                 </button>
                                 <button
                                     onClick={() => setIsMinimized(true)}
-                                    className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                    title="Minimize"
+                                    className="p-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors border border-white/20"
                                 >
                                     <ChevronDown size={16} />
                                 </button>
                                 <button
                                     onClick={() => setIsOpen(false)}
-                                    className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                    title="Close"
+                                    className="p-1.5 bg-white/10 hover:bg-red-500/30 rounded-lg text-white hover:text-red-300 transition-colors border border-white/20"
                                 >
                                     <X size={16} />
                                 </button>
