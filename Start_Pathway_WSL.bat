@@ -29,8 +29,11 @@ timeout /t 2 /nobreak >nul
 echo [>>] Starting Pathway backend on http://localhost:8000 ...
 echo.
 
+:: Build WSL-compatible path dynamically (works on any machine)
+for /f "usebackq delims=" %%i in (`wsl -d Ubuntu -u root -- wslpath -u "%~dp0backend\pathway_streaming_enhanced.py"`) do set WSL_SCRIPT=%%i
+
 :: Run the enhanced pathway streaming backend using WSL Python venv
-wsl -d Ubuntu -u root -- /root/pw_venv/bin/python3 /mnt/c/Users/lenovo/Desktop/fin_final2/backend/pathway_streaming_enhanced.py
+wsl -d Ubuntu -u root -- /root/pw_venv/bin/python3 %WSL_SCRIPT%
 
 if %errorlevel% neq 0 (
     echo.

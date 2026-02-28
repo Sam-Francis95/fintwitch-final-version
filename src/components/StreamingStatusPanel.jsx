@@ -23,12 +23,12 @@ const StreamingStatusPanel = () => {
     } catch (error) {
       // Fall back to demo mode with mock data
       setStatus({
-        engine_active: true,
-        pipeline_health: 'operational',
+        engine_active: false,
+        pipeline_health: 'demo',
         events_processed: MOCK_STATUS.events_processed,
         transactions_processed: MOCK_STATUS.total_transactions,
         external_signals_processed: 3,
-        active_data_sources: ['user_transactions', 'external_signals', 'market_feed'],
+        active_data_sources: ['mock_transactions', 'mock_signals', 'mock_market'],
         current_window_size: 60,
         uptime_seconds: MOCK_STATUS.uptime,
         last_transaction_time: new Date(Date.now() - 120000).toISOString(),
@@ -62,6 +62,7 @@ const StreamingStatusPanel = () => {
     'operational': 'text-green-400',
     'warning': 'text-yellow-400',
     'fallback': 'text-yellow-400',
+    'demo': 'text-orange-400',
     'error': 'text-red-400'
   }[status?.pipeline_health || 'operational'] || 'text-gray-400';
 
@@ -69,6 +70,7 @@ const StreamingStatusPanel = () => {
     'operational': 'bg-green-500/20 border-green-500/50',
     'warning': 'bg-yellow-500/20 border-yellow-500/50',
     'fallback': 'bg-yellow-500/20 border-yellow-500/50',
+    'demo': 'bg-orange-500/20 border-orange-500/50',
     'error': 'bg-red-500/20 border-red-500/50'
   }[status?.pipeline_health || 'operational'] || 'bg-gray-500/20 border-gray-500/50';
 
@@ -86,13 +88,24 @@ const StreamingStatusPanel = () => {
         </div>
         <div className="flex items-center gap-2">
           {isDemoMode && (
-            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold border border-yellow-500/30">DEMO</span>
+            <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-bold border border-orange-500/30 animate-pulse">DEMO MODE</span>
           )}
           <div className={`px-3 py-1 rounded-full text-xs font-bold border ${pipelineHealthBg}`}>
             <span className={pipelineHealthColor}>{(status?.pipeline_health || 'operational').toUpperCase()}</span>
           </div>
         </div>
       </div>
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="mb-4 p-3 rounded-lg bg-orange-500/10 border border-orange-500/30 flex items-start gap-3">
+          <WifiOff className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-orange-300">Backend Offline — Showing Demo Data</p>
+            <p className="text-xs text-orange-400/70 mt-0.5">WSL Ubuntu was not detected. Run <code className="bg-white/10 px-1 rounded">start_all_services.bat</code> on a machine with WSL Ubuntu to enable live Pathway streaming.</p>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">

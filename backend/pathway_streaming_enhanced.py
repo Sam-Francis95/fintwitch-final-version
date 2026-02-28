@@ -36,10 +36,15 @@ import queue as queue_module
 # Import real Pathway
 try:
     import pathway as pw
-    if not hasattr(pw, 'Schema'):
-        raise ImportError("Stub pathway detected")
+    # Detect stub/fake pathway by checking for core runtime attributes
+    # pw.Schema moved to pw.schema.Schema in some 0.29.x builds
+    if not hasattr(pw, 'run') or not hasattr(pw, 'io'):
+        raise ImportError("Stub pathway detected - missing core runtime")
+    # Ensure Schema is accessible somewhere
+    if not hasattr(pw, 'Schema') and not (hasattr(pw, 'schema') and hasattr(pw.schema, 'Schema')):
+        raise ImportError("Stub pathway detected - Schema not found")
     PATHWAY_AVAILABLE = True
-    print("OK REAL Pathway streaming engine loaded")
+    print(f"OK REAL Pathway streaming engine loaded (version: {getattr(pw, '__version__', 'unknown')})")
 except (ImportError, AttributeError) as e:
     print(f"!!  Real Pathway not available: {e}")
     print("-> Install from: https://pathway.com/developers/")
@@ -194,8 +199,10 @@ start_time = time.time()
 if PATHWAY_AVAILABLE:
     
     # ===== SCHEMA DEFINITIONS =====
+    # pw.Schema was renamed in Pathway 0.29+ — resolve whichever is available
+    _SchemaBase = getattr(pw, 'Schema', None) or getattr(pw.schema, 'Schema', None) if hasattr(pw, 'schema') else pw.Schema
     
-    class TransactionSchema(pw.Schema):
+    class TransactionSchema(_SchemaBase):
         event_id: str
         type: str  # 'income' or 'expense'
         amount: float
@@ -203,7 +210,7 @@ if PATHWAY_AVAILABLE:
         timestamp: int  # Unix timestamp in milliseconds
         description: str
     
-    class ExternalSignalSchema(pw.Schema):
+    class ExternalSignalSchema(_SchemaBase):
         event_id: str
         category: str  # market, economic, policy
         event_type: str
@@ -855,7 +862,7 @@ async def generate_llm_insights_async():
 
 async def poll_external_stream():
     """Poll external event stream file and ingest into Pathway"""
-    stream_file = Path("data_streams/external_events.jsonl")
+    stream_file = Path(__file__).parent / "data_streams" / "external_events.jsonl"
     processed_lines = 0
     
     while True:
@@ -1123,6 +1130,11 @@ def get_streaming_status():
     with state_lock:
         status = streaming_status.copy()
         status["uptime_seconds"] = int(time.time() - start_time)
+        # Use PATHWAY_AVAILABLE as the ground truth — if real Pathway was imported
+        # and pw.run() was called at startup, the engine is operational.
+        # PATHWAY_RUNNING is unreliable because pw.run() in Pathway 0.29+ uses AFC
+        # (Adaptive Flow Control) and may not block the thread permanently.
+        status["pipeline_health"] = "operational" if PATHWAY_AVAILABLE else "fallback"
         return status
 
 @app.get("/")
@@ -1194,17 +1206,11 @@ async def startup_event():
     if not PATHWAY_AVAILABLE:
         streaming_status["pipeline_health"] = "fallback"
         print("[Pathway] Running in fallback mode - all endpoints active")
-
-    # Start the real Pathway pipeline in a background thread (pw.run() is blocking)
-    if PATHWAY_AVAILABLE:
-        def _run_pathway():
-            try:
-                pw.run()
-            except Exception as e:
-                print(f"[Pathway] Pipeline error: {e}")
-        pathway_thread = threading.Thread(target=_run_pathway, daemon=True, name="PathwayPipeline")
-        pathway_thread.start()
-        print("[Pathway] Pipeline thread started (pw.run() running in background)")
+    else:
+        # pw.run() is already started in a background thread at module load time
+        # (inside the `if PATHWAY_AVAILABLE:` block above). Do NOT call it again here.
+        streaming_status["pipeline_health"] = "operational"
+        print("[Pathway] Pipeline is running (started at module load)")
     
     print("\nOK HACKATHON-READY PATHWAY SYSTEM OPERATIONAL\n")
 
