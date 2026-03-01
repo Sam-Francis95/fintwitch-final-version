@@ -688,7 +688,7 @@ def check_real_time_alerts():
         })
     
     # WARNING ALERTS
-    if balance < 2000 and balance > 0:
+    if balance >= 0 and balance < 2000:
         warnings.append({
             "level": "WARNING",
             "title": "Low Balance Warning",
@@ -1063,7 +1063,8 @@ def get_external_signals():
 
 @app.get("/alerts")
 def get_real_time_alerts():
-    """Get real-time decision assistance alerts"""
+    """Get real-time decision assistance alerts (always refreshed)"""
+    check_real_time_alerts()
     with state_lock:
         return latest_alerts.copy()
 
@@ -1200,6 +1201,17 @@ async def startup_event():
     
     # Start polling external stream
     asyncio.create_task(poll_external_stream())
+
+    # Bootstrap alert state immediately so triggered_at is never None
+    check_real_time_alerts()
+
+    # Periodic alert refresh every 10 seconds
+    async def periodic_alert_refresh():
+        while True:
+            await asyncio.sleep(10)
+            check_real_time_alerts()
+
+    asyncio.create_task(periodic_alert_refresh())
 
     # Always mark engine as active (fallback mode still serves all endpoints)
     streaming_status["engine_active"] = True

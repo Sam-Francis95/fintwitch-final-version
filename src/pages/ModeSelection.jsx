@@ -65,7 +65,7 @@ export default function ModeSelection() {
 
                         <h2 className="text-xl font-bold text-white mb-2 font-heading">Master Your Money</h2>
                         <p className="text-slate-400 text-sm mb-4">
-                            Take control of your financial destiny. Wield powerful calculators, practice with the Stock Simulator, and build generational wealth with precision.
+                            Take control of your financial destiny. Wield powerful calculators and build generational wealth with precision.
                         </p>
                     </motion.div>
                 </Link>

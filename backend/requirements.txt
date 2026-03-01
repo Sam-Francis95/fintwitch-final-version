@@ -2,10 +2,6 @@ flask
 flask-cors
 requests
 
-# Real Pathway - Install from: https://pathway.com/developers/
-# On Windows, may need WSL or Docker
-pathway
-
 # API Framework
 fastapi
 uvicorn[standard]
@@ -19,3 +15,17 @@ httpx
 
 # Optional: Local LLM via Ollama
 # ollama-python
+
+# -------------------------------------------------------
+# PATHWAY — Real-Time Streaming Engine
+# -------------------------------------------------------
+# Pathway does NOT install on Windows natively.
+# The setup.bat handles this automatically via WSL Ubuntu.
+#
+# If you are on Linux/macOS, install manually:
+#   pip install pathway
+#
+# If you are on Windows (without WSL), the app runs in
+# DEMO mode using built-in mock data — no install needed.
+# -------------------------------------------------------
+# pathway  <-- intentionally commented out for Windows safety

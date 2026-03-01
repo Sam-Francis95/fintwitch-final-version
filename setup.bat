@@ -33,7 +33,7 @@ echo.
 :: Step 3: Install Python backend dependencies
 echo [3/5] Installing Python backend dependencies...
 call .venv\Scripts\activate.bat
-pip install flask flask-cors requests fastapi uvicorn pydantic google-genai openai python-dotenv httpx
+pip install flask flask-cors requests fastapi "uvicorn[standard]" pydantic "google-genai>=0.2.0" "openai>=1.0.0" python-dotenv httpx
 if %errorlevel% neq 0 (
     echo ERROR: pip install failed.
     pause

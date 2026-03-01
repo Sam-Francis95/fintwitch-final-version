@@ -25,7 +25,7 @@ EXPENSE_BLOCK_THRESHOLD = 100      # Below this: No expenses generated
 RECOVERY_THRESHOLD = 2000          # Must reach this to exit recovery mode and resume normal expenses
 LOW_BALANCE_THRESHOLD = 500        # Boost income generation
 RECOVERY_BALANCE_THRESHOLD = 1500  # Return to balanced mode
-HIGH_BALANCE_THRESHOLD = 90000     # Above this: Increase expenses significantly
+HIGH_BALANCE_THRESHOLD = 80000     # Above this: Increase expenses significantly
 MAX_BALANCE_THRESHOLD = 100000     # Hard cap: income blocked until user allocates money
 
 # Recovery state tracker - once balance hits 0, expenses are blocked until RECOVERY_THRESHOLD
@@ -55,13 +55,13 @@ def generate_event(user_balance=None):
         elif user_balance >= MAX_BALANCE_THRESHOLD:
             # Balance cap reached — block all income until user allocates money
             income_probability = 0.0
-            expense_multiplier = 3.0
-            print(f"🔝 CAP REACHED (Balance: \u20b9{user_balance:.2f}) - Expenses only; allocate money to unlock growth")
+            expense_multiplier = 4.0
+            print(f"🔝 CAP REACHED (Balance: \u20b9{user_balance:.2f}) - Expenses only; allocate money to Budget Vault to unlock income")
         elif user_balance >= HIGH_BALANCE_THRESHOLD:
-            # High balance — heavy expenses to challenge player
-            income_probability = 0.10
-            expense_multiplier = 2.5
-            print(f"💰 HIGH BALANCE MODE (Balance: \u20b9{user_balance:.2f}) - Increased expenses!")
+            # High balance (80k+) — ramp up expenses aggressively before cap
+            income_probability = 0.05
+            expense_multiplier = 3.0
+            print(f"💰 HIGH BALANCE MODE (Balance: \u20b9{user_balance:.2f}) - Heavy expenses to prevent cap breach!")
         elif user_balance < LOW_BALANCE_THRESHOLD:
             # Low balance — boost income
             income_probability = 0.80
@@ -73,11 +73,11 @@ def generate_event(user_balance=None):
             expense_multiplier = 0.7
             print(f"📈 BALANCED MODE ({user_balance}) - Balanced generation...")
         else:
-            # Normal mode — challenge player (20% income, 80% expense)
-            income_probability = 0.20
+            # Normal mode — 45% income, 55% expense
+            income_probability = 0.45
             expense_multiplier = 1.0
     else:
-        income_probability = 0.20
+        income_probability = 0.45
         expense_multiplier = 1.0
     
     if random.random() < income_probability:

@@ -31,7 +31,6 @@ import HomePage from "./pages/HomePage";
 import GamesArea from "./pages/GamesArea";
 import CareerLevelPage from "./pages/CareerLevelPage";
 import DreamLifePlanner from "./pages/DreamLifePlanner";
-import StockMarketGame from "./pages/StockMarketGame";
 import ToolsArea from "./pages/ToolsArea";
 import ArticlesArea from "./pages/ArticlesArea";
 import HabitTracker from "./pages/HabitTracker";
@@ -108,7 +107,6 @@ export default function App() {
               <Route path="games" element={<PageWrapper><GamesArea /></PageWrapper>} />
               <Route path="games/career/:levelId" element={<PageWrapper><CareerLevelPage /></PageWrapper>} />
               <Route path="games/dreamlife" element={<PageWrapper><DreamLifePlanner /></PageWrapper>} />
-              <Route path="games/stockmarket" element={<PageWrapper><StockMarketGame /></PageWrapper>} />
               <Route path="tools" element={<PageWrapper><ToolsArea /></PageWrapper>} />
               <Route path="articles" element={<PageWrapper><ArticlesArea /></PageWrapper>} />
               <Route path="habit" element={<PageWrapper><HabitTracker /></PageWrapper>} />

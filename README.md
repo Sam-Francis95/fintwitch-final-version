@@ -56,7 +56,7 @@ It performs **continuous financial analysis** by ingesting live data streams —
 
 ### 🖥️ Core Platform Features
 - **Career Progression Module** – Structured financial literacy pathway across 6 competency levels
-- **Financial Decision Simulation Lab** – Scenario-based modules (MCQ assessments, Dream Life Planner, Stock Market Simulator) for exploring the consequences of financial choices
+- **Financial Decision Simulation Lab** – Scenario-based modules (MCQ assessments, Finance IQ Challenge, Stock Market Simulator) for exploring the consequences of financial choices
 - **Finance Tools Suite** – FIRE, Tax, SIP, Loan EMI, Inflation calculators for real-world analysis
 - **Habit Tracker** – Monitor daily financial discipline with consistency metrics and behavioral insights
 - **Progress & Achievement System** – Track user progress milestones and unlock competency indicators

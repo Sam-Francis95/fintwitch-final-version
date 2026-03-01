@@ -6,9 +6,9 @@ export const searchIndex = [
         keywords: ["stock", "market", "trade", "buy", "sell", "portfolio", "invest", "equity", "share", "game", "finance", "sim"]
     },
     {
-        title: "Dream Life Planner",
+        title: "Finance IQ Challenge",
         path: "/games/dreamlife",
-        keywords: ["dream", "life", "goal", "plan", "house", "car", "luxury", "buy", "asset", "future", "retire"]
+        keywords: ["finance", "iq", "knowledge", "quiz", "invest", "tax", "credit", "budget", "savings", "financial", "meter", "score", "learn"]
     },
     {
         title: "Career Mode",

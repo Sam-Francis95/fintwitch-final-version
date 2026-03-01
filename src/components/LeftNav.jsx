@@ -9,7 +9,6 @@ import {
     BookOpen,
     Flame,
     CreditCard,
-    TrendingUp,
     Sparkles,
     Rocket,
     Wallet,
@@ -33,8 +32,7 @@ export default function LeftNav() {
     const allLinks = [
         { label: "Mission Control", to: "/", icon: Home, modes: ['career', 'financial_tools'] },
         { label: "Career Mode", to: "/games", icon: Gamepad2, modes: ['career'] },
-        { label: "Stock Market", to: "/games/stockmarket", icon: TrendingUp, modes: ['financial_tools'] },
-        { label: "Dream Life", to: "/games/dreamlife", icon: Sparkles, modes: ['career', 'financial_tools'] },
+        { label: "Finance IQ", to: "/games/dreamlife", icon: Sparkles, modes: ['career', 'financial_tools'] },
         { label: "Tools Bay", to: "/tools", icon: Calculator, modes: ['career', 'financial_tools'] },
         { label: "Data Logs", to: "/articles", icon: BookOpen, modes: ['career', 'financial_tools'] },
         { label: "Habit Core", to: "/habit", icon: Flame, modes: ['career', 'financial_tools'] },

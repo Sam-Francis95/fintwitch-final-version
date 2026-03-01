@@ -19,7 +19,8 @@ const RealTimeAlertsPanel = () => {
       setAlerts(data);
       setLoading(false);
     } catch (error) {
-      setAlerts(MOCK_ALERTS);
+      // Backend offline — use mock data with a fresh timestamp
+      setAlerts({ ...MOCK_ALERTS, triggered_at: new Date().toISOString() });
       setLoading(false);
     }
   };
